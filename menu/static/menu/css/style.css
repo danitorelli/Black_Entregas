@@ -1,0 +1,159 @@
+/* menu/static/menu/css/style.css */
+body {
+    font-family: 'Nunito', sans-serif; /* Exemplo de fonte mais moderna, adicione o link no base.html se usar Google Fonts */
+    background-color: #f4f0f7; /* Um lilás bem clarinho */
+}
+
+.navbar-brand-custom {
+    font-weight: bold;
+    color: #4a0072 !important; /* Roxo escuro para a marca */
+    font-size: 1.5rem;
+}
+ .navbar-brand-custom:hover {
+    color: #7b1fa2 !important; /* Roxo mais claro no hover */
+}
+
+.category-title {
+    color: #4a0072; /* Roxo escuro */
+    margin-top: 40px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid #d1c4e9; /* Lilás para a borda */
+    font-weight: 600;
+}
+
+.product-card {
+    border: none; /* Remover borda padrão se usar sombra */
+    border-radius: 15px;
+    margin-bottom: 25px;
+    background-color: #ffffff;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    transition: transform .3s ease-in-out, box-shadow .3s ease-in-out;
+}
+
+.product-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 12px 24px rgba(74,0,114,0.2); /* Sombra mais pronunciada e colorida */
+}
+
+.product-card img {
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    max-height: 220px;
+    object-fit: cover;
+}
+
+.product-card .card-body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.product-card .card-title {
+    font-size: 1.3rem;
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+ .product-card .card-text {
+    font-size: 0.95rem;
+    color: #555;
+    flex-grow: 1; /* Faz a descrição ocupar o espaço disponível */
+    margin-bottom: 1rem;
+}
+ .product-card .card-text strong {
+    color: #4a0072; /* Preço em roxo */
+    font-size: 1.2rem;
+}
+
+
+.btn-primary-custom {
+    background-color: #7b1fa2; /* Roxo médio */
+    border-color: #7b1fa2;
+    color: white;
+    font-weight: 500;
+    padding: 10px 20px;
+    border-radius: 8px;
+    transition: background-color .2s ease-in-out;
+}
+
+.btn-primary-custom:hover {
+    background-color: #4a0072; /* Roxo escuro no hover */
+    border-color: #4a0072;
+}
+
+.btn-outline-secondary {
+    border-color: #7b1fa2;
+    color: #7b1fa2;
+    border-radius: 8px;
+    font-weight: 500;
+}
+.btn-outline-secondary:hover {
+    background-color: #f4f0f7; /* Fundo lilás clarinho */
+    color: #4a0072;
+    border-color: #4a0072;
+}
+
+.footer-custom {
+    background-color: #333; /* Ou um roxo bem escuro: #2e003e */
+    color: #f0f0f0;
+    padding: 30px 0;
+    margin-top: 50px;
+}
+.footer-custom p { margin-bottom: 0; }
+
+.badge-custom {
+    background-color: #ffab00; /* Um amarelo/laranja vibrante para o badge do carrinho */
+    color: #333;
+    font-size: 0.8rem;
+    padding: 0.4em 0.7em;
+}
+
+/* Detalhe do produto */
+.detail-price {
+    color: #4a0072;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+/* Mensagens (Alerts) */
+.messages-container {
+    position: fixed;
+    top: 80px; /* Abaixo do navbar */
+    right: 20px;
+    z-index: 1055; /* Acima de outros elementos */
+    width: auto;
+    min-width: 300px;
+}
+.alert {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Estilizando checkboxes e radios para um visual mais moderno (exemplo básico) */
+.form-check-input:checked {
+    background-color: #7b1fa2;
+    border-color: #7b1fa2;
+}
+.form-check-input:focus {
+    border-color: #d1c4e9;
+    box-shadow: 0 0 0 0.25rem rgba(123, 31, 162, 0.25);
+}
+
+/* Estilo para formulário de quantidade no carrinho */
+#ver_carrinho .form-control-sm {
+    max-width: 70px;
+}
+
+/* Media queries para responsividade - Bootstrap já faz muito, mas pode adicionar customizações */
+@media (max-width: 768px) {
+    .product-card img {
+        max-height: 180px;
+    }
+    .category-title {
+        font-size: 1.8rem;
+    }
+    h1.display-4 {
+        font-size: 2.5rem;
+    }
+}

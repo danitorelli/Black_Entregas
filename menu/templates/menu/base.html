@@ -1,0 +1,54 @@
+{% load static %} <!DOCTYPE html>
+<html lang="pt-br"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>{% block title %}Black Açaí e Sorveteria{% endblock %}</title> <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"> <link rel="stylesheet" href="{% static 'menu/css/style.css' %}"> <style> /* 9 */
+        body { font-family: 'Arial', sans-serif; background-color: #f8f9fa; }
+        .navbar-brand-custom { font-weight: bold; color: #5e35b1 !important; /* Roxo Açaí */ }
+        .product-card { border: 1px solid #ddd; border-radius: 8px; margin-bottom: 20px; background-color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: transform .2s; }
+        .product-card:hover { transform: scale(1.03); }
+        .product-card img { max-height: 200px; object-fit: cover; border-top-left-radius: 8px; border-top-right-radius: 8px; }
+        .product-card .card-body { padding: 15px; }
+        .product-card .card-title { font-size: 1.25rem; color: #333; }
+        .btn-primary-custom { background-color: #7e57c2; border-color: #7e57c2; /* Tom mais claro de roxo */ }
+        .btn-primary-custom:hover { background-color: #5e35b1; border-color: #5e35b1; }
+        .btn-secondary-custom { background-color: #ffc107; border-color: #ffc107; color: #333; /* Amarelo para contraste */ }
+        .btn-secondary-custom:hover { background-color: #ffb300; border-color: #ffb300; }
+        .category-title { color: #5e35b1; margin-top: 30px; margin-bottom: 15px; border-bottom: 2px solid #7e57c2; padding-bottom: 5px; }
+        .footer-custom { background-color: #333; color: white; padding: 20px 0; margin-top: 40px; }
+        .cart-icon { font-size: 1.5rem; } /* Não usado diretamente aqui, mas pode ser útil */
+        .badge-custom { background-color: #ffc107; color: #333;}
+        .messages-container { position: fixed; top: 70px; right: 20px; z-index: 1050; width: auto; max-width: 400px;}
+    </style>
+
+    {% block extra_head %}{% endblock %} </head>
+<body> <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top shadow-sm"> <div class="container"> <a class="navbar-brand navbar-brand-custom" href="{% url 'menu:listar_produtos' %}">🍦 Black Açaí & Sorveteria</a> <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"> <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav"> <ul class="navbar-nav ms-auto"> <li class="nav-item">
+                        <a class="nav-link" href="{% url 'menu:listar_produtos' %}">Cardápio</a> </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'menu:ver_carrinho' %}"> 🛒 Carrinho
+                            {% with request.session.carrinho as carrinho_session %} {% if carrinho_session %}
+                                    <span class="badge badge-custom rounded-pill">
+                                        {{ carrinho_session|length }} </span>
+                                {% endif %}
+                            {% endwith %}
+                        </a>
+                    </li>
+                    </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="messages-container"> {% if messages %} {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert"> {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    </div>
+
+    <main class="container mt-4"> {% block content %} {% endblock %}
+    </main>
+
+    <footer class="footer-custom text-center"> <p>&copy; {% now "Y" %} Black Açaí e Sorveteria. Todos os direitos reservados.</p> </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script> {% block extra_scripts %}{% endblock %} </body>
+</html>

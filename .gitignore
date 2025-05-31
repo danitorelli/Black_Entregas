@@ -1,0 +1,8 @@
+# .gitignore
+.env
+venv/
+__pycache__/
+*.pyc
+db.sqlite3 # Se você rodar migrações antes de configurar o Supabase
+static_collected/ # Adicionaremos depois
+media/ # Adicionaremos depois
