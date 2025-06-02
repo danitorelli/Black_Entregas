@@ -1,8 +1,45 @@
 {% extends "menu/base.html" %}
-
-{% block title %}Nosso Cardápio - Black Açaí{% endblock %}
+{% load static %} {% block title %}Nosso Cardápio - Black Açaí{% endblock %}
 
 {% block content %}
-    <h1>Lista de Produtos</h1>
-    <p>Confira nossas delícias...</p>
+<div class="text-center mb-5">
+    <h1 class="display-4">Nosso Cardápio Delicioso 🍨</h1>
+    <p class="lead">Escolha seus favoritos e monte seu pedido!</p>
+</div>
+
+{% if not categorias %}
+    <div class="alert alert-info text-center" role="alert">
+        😢 Nenhum produto disponível no momento. Volte mais tarde!
+    </div>
+{% endif %}
+
+{% for categoria in categorias %}
+    {% if categoria.produtos.all %} {# Só mostra a categoria se tiver produtos disponíveis nela (a view já filtra por produto.disponivel) #}
+        <h2 class="category-title">{{ categoria.nome }}</h2>
+        {% if categoria.descricao %}<p class="text-muted">{{ categoria.descricao }}</p>{% endif %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for produto in categoria.produtos.all %}
+                {# A view já filtra produtos por 'disponivel=True', então não precisa de if produto.disponivel aqui,
+                   mas não faz mal se tiver. Garantimos que a query na view é a fonte da verdade. #}
+                <div class="col">
+                    <div class="card h-100 product-card">
+                        {% if produto.imagem %}
+                            <img src="{{ produto.imagem.url }}" class="card-img-top" alt="{{ produto.nome }}">
+                        {% else %}
+                            <img src="{% static 'menu/images/placeholder.png' %}" class="card-img-top" alt="Imagem não disponível">
+                        {% endif %}
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">{{ produto.nome }}</h5>
+                            <p class="card-text">{{ produto.descricao|truncatewords:20 }}</p>
+                            <p class="card-text"><strong>R$ {{ produto.preco_base|stringformat:".2f" }}</strong></p>
+                            <div class="mt-auto">
+                                <a href="{% url 'menu:detalhe_produto' produto.id %}" class="btn btn-primary-custom w-100">Ver Detalhes e Adicionar</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endfor %}
 {% endblock %}
