@@ -9,14 +9,32 @@ from decimal import Decimal
 import json # Para lidar com dados JSON do frontend se necessário
 from decouple import config # Para pegar o número do WhatsApp
 import urllib.parse # Para formatar a mensagem do WhatsApp
+from django.db.models import Prefetch
 
 
 def listar_produtos(request):
-    categorias = Categoria.objects.prefetch_related('produtos').filter(produtos__disponivel=True).distinct()
-    # Se quiser listar produtos sem categoria também:
-    # produtos_sem_categoria = Produto.objects.filter(categoria__isnull=True, disponivel=True)
+    # Buscamos categorias que tenham produtos disponíveis,
+    # ordenamos pela nossa nova coluna 'ordem' e depois por 'nome' como desempate.
+    # Usamos Prefetch para otimizar a busca dos produtos já filtrados por disponibilidade.
+    
+    categorias_ordenadas = Categoria.objects.filter(
+        produtos__disponivel=True  # Garante que a categoria tem pelo menos um produto disponível
+    ).order_by(
+        'ordem', 'nome' # Ordena as categorias
+    ).distinct().prefetch_related(
+        Prefetch('produtos', queryset=Produto.objects.filter(disponivel=True).order_by('nome')) # Pega apenas produtos disponíveis
+    )
+
+    # Debug (opcional, remover depois)
+    # print("--- Categorias Ordenadas para o Template ---")
+    # for cat in categorias_ordenadas:
+    #     print(f"Ordem: {cat.ordem}, Nome: {cat.nome}")
+    #     for prod in cat.produtos.all(): # produtos aqui já estarão filtrados pelo prefetch
+    #          print(f"  - Produto: {prod.nome}")
+
+
     context = {
-        'categorias': categorias,
+        'categorias': categorias_ordenadas,
     }
     return render(request, 'menu/listar_produtos.html', context)
 

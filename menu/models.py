@@ -3,9 +3,15 @@ from django.db import models
 from django.core.validators import MinValueValidator
 import uuid # Para IDs de pedido únicos
 
+
 class Categoria(models.Model):
     nome = models.CharField(max_length=100, unique=True, verbose_name="Nome da Categoria")
     descricao = models.TextField(blank=True, null=True, verbose_name="Descrição")
+    ordem = models.PositiveIntegerField(
+        default=0,
+        verbose_name="Ordem de Exibição",
+        help_text="Defina a ordem (ex: 0, 1, 2...). Categorias com números menores aparecem primeiro."
+    ) # Novo campo
 
     def __str__(self):
         return self.nome
@@ -13,6 +19,7 @@ class Categoria(models.Model):
     class Meta:
         verbose_name = "Categoria"
         verbose_name_plural = "Categorias"
+        ordering = ['ordem', 'nome'] # Nova linha para ordenação padrão
 
 class Sabor(models.Model):
     nome = models.CharField(max_length=100, unique=True, verbose_name="Nome do Sabor")

@@ -1,0 +1,96 @@
+{% extends "menu/base.html" %}
+{% load static %}
+
+{% block title %}Seu Carrinho - Black Açaí{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">🛒 Seu Carrinho de Compras</h1>
+
+{% if not itens_carrinho %}
+    <div class="alert alert-info" role="alert">
+        Seu carrinho está vazio. <a href="{% url 'menu:listar_produtos' %}" class="alert-link">Comece a adicionar delícias!</a>
+    </div>
+{% else %}
+    <div class="table-responsive shadow-sm rounded mb-4">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th scope="col" style="width: 10%;">Imagem</th>
+                    <th scope="col" style="width: 30%;">Produto e Detalhes</th>
+                    <th scope="col" class="text-center" style="width: 10%;">Preço Unit.</th>
+                    <th scope="col" class="text-center" style="width: 15%;">Quantidade</th>
+                    <th scope="col" class="text-end" style="width: 15%;">Subtotal</th>
+                    <th scope="col" class="text-center" style="width: 10%;">Ação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in itens_carrinho %}
+                <tr>
+                    <td>
+                        {% if item.imagem_url %}
+                            <img src="{{ item.imagem_url }}" alt="{{ item.nome }}" class="img-thumbnail" style="width: 70px; height: 70px; object-fit: cover;">
+                        {% else %}
+                            <img src="{% static 'menu/images/placeholder_thumb.png' %}" alt="Sem imagem" class="img-thumbnail" style="width: 70px; height: 70px; object-fit: cover;">
+                        {% endif %}
+                    </td>
+                    <td>
+                        <strong>{{ item.nome }}</strong><br>
+                        {% if item.sabores_nomes %}
+                            <small class="text-muted">Sabores: {{ item.sabores_nomes|join:", " }}</small><br>
+                        {% endif %}
+                        {% if item.adicionais_nomes_precos %}
+                            <small class="text-muted">Adicionais:
+                            {% for ad in item.adicionais_nomes_precos %}
+                                {{ ad.nome }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                            </small><br>
+                        {% endif %}
+                        {% if item.observacao_item %}
+                            <small class="text-muted"><i>Obs: {{ item.observacao_item|truncatechars:30 }}</i></small>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">R$ {{ item.preco_final_unitario|stringformat:".2f" }}</td>
+                    <td class="text-center">
+                        <form action="{% url 'menu:atualizar_carrinho' item.item_id_carrinho %}" method="post" class="d-inline-flex align-items-center">
+                            {% csrf_token %}
+                            <input type="number" name="quantidade" value="{{ item.quantidade }}" min="0" class="form-control form-control-sm" style="width: 70px; text-align: center;">
+                            <button type="submit" class="btn btn-sm btn-outline-primary ms-1" title="Atualizar Quantidade">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-repeat" viewBox="0 0 16 16">
+                                    <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"/>
+                                    <path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.5A5.002 5.002 0 0 0 8 3zM3.5 9A5.002 5.002 0 0 0 8 13c1.552 0 2.94-.707 3.857-1.818a.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.5z"/>
+                                </svg>
+                            </button>
+                        </form>
+                    </td>
+                    <td class="text-end"><strong>R$ {{ item.subtotal|stringformat:".2f" }}</strong></td>
+                    <td class="text-center">
+                        <form action="{% url 'menu:remover_do_carrinho' item.item_id_carrinho %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Remover Item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
+                                    <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z"/>
+                                </svg>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3" class="text-end"></td>
+                    <td class="text-center"><h4>Total:</h4></td>
+                    <td class="text-end"><h4><strong>R$ {{ valor_total_carrinho|stringformat:".2f" }}</strong></h4></td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <div class="d-flex justify-content-between mt-4 flex-wrap gap-2">
+        <a href="{% url 'menu:listar_produtos' %}" class="btn btn-outline-secondary btn-lg">🛍️ Continuar Comprando</a>
+        <a href="{% url 'menu:finalizar_pedido' %}" class="btn btn-primary-custom btn-lg">🚀 Finalizar Pedido e Enviar</a>
+    </div>
+
+{% endif %}
+{% endblock %}

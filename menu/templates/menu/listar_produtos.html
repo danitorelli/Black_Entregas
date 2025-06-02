@@ -19,8 +19,6 @@
         {% if categoria.descricao %}<p class="text-muted">{{ categoria.descricao }}</p>{% endif %}
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
             {% for produto in categoria.produtos.all %}
-                {# A view já filtra produtos por 'disponivel=True', então não precisa de if produto.disponivel aqui,
-                   mas não faz mal se tiver. Garantimos que a query na view é a fonte da verdade. #}
                 <div class="col">
                     <div class="card h-100 product-card">
                         {% if produto.imagem %}

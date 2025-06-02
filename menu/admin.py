@@ -33,8 +33,9 @@ class PedidoAdmin(admin.ModelAdmin):
 
 @admin.register(Categoria)
 class CategoriaAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'descricao')
+    list_display = ('nome', 'ordem', 'descricao') # Adicione 'ordem' aqui
     search_fields = ('nome',)
+    list_editable = ('ordem',) # Permite editar a ordem diretamente na lista (opcional, mas útil)
 
 @admin.register(Sabor)
 class SaborAdmin(admin.ModelAdmin):
