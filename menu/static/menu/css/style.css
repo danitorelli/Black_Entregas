@@ -9,7 +9,7 @@ body {
     color: #4a0072 !important; /* Roxo escuro para a marca */
     font-size: 1.5rem;
 }
- .navbar-brand-custom:hover {
+.navbar-brand-custom:hover {
     color: #7b1fa2 !important; /* Roxo mais claro no hover */
 }
 
@@ -29,6 +29,10 @@ body {
     background-color: #ffffff;
     box-shadow: 0 8px 16px rgba(0,0,0,0.1);
     transition: transform .3s ease-in-out, box-shadow .3s ease-in-out;
+    /* Ajustes para diminuir o card */
+    max-width: 280px; /* Limita a largura máxima do card */
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .product-card:hover {
@@ -39,32 +43,33 @@ body {
 .product-card img {
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
-    max-height: 220px;
+    max-height: 180px; /* Reduzida a altura máxima da imagem */
     object-fit: cover;
+    width: 100%; /* Garante que a imagem preencha a largura do card */
 }
 
 .product-card .card-body {
-    padding: 20px;
+    padding: 15px; /* Reduzido o padding */
     display: flex;
     flex-direction: column;
     justify-content: space-between;
 }
 
 .product-card .card-title {
-    font-size: 1.3rem;
+    font-size: 1.1rem; /* Reduzido o tamanho da fonte */
     color: #333;
     font-weight: 600;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.4rem;
 }
- .product-card .card-text {
-    font-size: 0.95rem;
+.product-card .card-text {
+    font-size: 0.85rem; /* Reduzido o tamanho da fonte */
     color: #555;
     flex-grow: 1; /* Faz a descrição ocupar o espaço disponível */
-    margin-bottom: 1rem;
+    margin-bottom: 0.8rem;
 }
- .product-card .card-text strong {
+.product-card .card-text strong {
     color: #4a0072; /* Preço em roxo */
-    font-size: 1.2rem;
+    font-size: 1.1rem; /* Ajustado o tamanho da fonte do preço */
 }
 
 
@@ -145,10 +150,84 @@ body {
     max-width: 70px;
 }
 
+/* Estilo para os botões de filtro de categoria */
+.category-filter-buttons .btn {
+    margin: 5px;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.category-filter-buttons .btn-outline-primary {
+    color: #7b1fa2;
+    border-color: #7b1fa2;
+}
+
+.category-filter-buttons .btn-outline-primary:hover,
+.category-filter-buttons .btn-outline-primary.active {
+    background-color: #7b1fa2;
+    color: white;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+
 /* Media queries para responsividade - Bootstrap já faz muito, mas pode adicionar customizações */
 @media (max-width: 768px) {
+    .product-card {
+        max-width: 90%; /* Ajuste para mobile */
+    }
     .product-card img {
-        max-height: 180px;
+        max-height: 150px; /* Ajuste para mobile */
+    }
+    .category-title {
+        font-size: 1.8rem;
+    }
+    h1.display-4 {
+        font-size: 2.5rem;
+    }
+}
+
+
+/* Estilo para os botões de filtro de categoria */
+.category-filter-buttons .btn {
+    margin: 5px;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.category-filter-buttons .btn-outline-primary {
+    color: #7b1fa2;
+    border-color: #7b1fa2;
+}
+
+.category-filter-buttons .btn-outline-primary:hover,
+.category-filter-buttons .btn-outline-primary.active {
+    background-color: #7b1fa2;
+    color: white;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* NOVO: Esconde os grupos de categoria por padrão */
+.category-group {
+    display: none;
+}
+
+/* Garante que o primeiro grupo (Todos) ou um grupo inicial seja visível ao carregar se desejar */
+.category-group.active-category { /* Usaremos esta classe para o JavaScript */
+    display: block;
+}
+
+
+/* Media queries para responsividade - Bootstrap já faz muito, mas pode adicionar customizações */
+@media (max-width: 768px) {
+    .product-card {
+        max-width: 90%; /* Ajuste para mobile */
+    }
+    .product-card img {
+        max-height: 150px; /* Ajuste para mobile */
     }
     .category-title {
         font-size: 1.8rem;

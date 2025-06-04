@@ -74,15 +74,32 @@ class Produto(models.Model):
 # Modelos para o Pedido
 class Pedido(models.Model):
     id_pedido_cliente = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, verbose_name="ID do Pedido (Cliente)")
-    nome_cliente = models.CharField(max_length=150, blank=True, null=True, verbose_name="Nome do Cliente") # Opcional, pode pegar no WhatsApp
-    observacoes = models.TextField(blank=True, null=True, verbose_name="Observações")
+    nome_cliente = models.CharField(max_length=150, blank=True, null=True, verbose_name="Nome Completo do Cliente") # Alterado para "Nome Completo"
+    endereco_cliente = models.CharField(max_length=255, blank=True, null=True, verbose_name="Endereço de Entrega") # NOVO
+    telefone_cliente = models.CharField(max_length=20, blank=True, null=True, verbose_name="Telefone do Cliente") # NOVO
+    cpf_cliente = models.CharField(max_length=14, blank=True, null=True, verbose_name="CPF do Cliente (Opcional)", help_text="Ex: 000.000.000-00") # NOVO
+
+    observacoes = models.TextField(blank=True, null=True, verbose_name="Observações Gerais do Pedido")
     valor_total = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, verbose_name="Valor Total")
     data_pedido = models.DateTimeField(auto_now_add=True, verbose_name="Data do Pedido")
     enviado_whatsapp = models.BooleanField(default=False, verbose_name="Enviado para WhatsApp")
-    # Poderia adicionar status: PENDENTE, PREPARANDO, PRONTO, ENTREGUE, CANCELADO
+
+    # Novos campos para forma de pagamento
+    FORMA_PAGAMENTO_CHOICES = [
+        ('pix', 'Pix'),
+        ('cartao', 'Cartão (Débito/Crédito)'),
+        ('dinheiro', 'Dinheiro'),
+    ]
+    forma_pagamento = models.CharField(
+        max_length=10, 
+        choices=FORMA_PAGAMENTO_CHOICES, 
+        default='dinheiro', 
+        verbose_name="Forma de Pagamento"
+    ) # NOVO
+    troco_para = models.DecimalField(max_digits=8, decimal_places=2, blank=True, null=True, verbose_name="Precisa de troco para") # NOVO
 
     def __str__(self):
-        return f"Pedido {self.id_pedido_cliente} - R$ {self.valor_total}"
+        return f"Pedido {self.id_pedido_cliente.hex[:8]} - R$ {self.valor_total}"
 
     class Meta:
         verbose_name = "Pedido"

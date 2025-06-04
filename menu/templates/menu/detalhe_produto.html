@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -7,11 +8,12 @@
     {# Links para o Bootstrap CSS (versão 5.3.3) #}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     
-    {# Seus estilos CSS customizados #}
+    {# Seus estilos CSS customizados - Mantenha este aqui ou no style.css #}
     <style>
+        /* Estilos específicos para esta página de detalhes */
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
+            font-family: 'Nunito', sans-serif; /* Usando a mesma fonte do style.css */
+            background-color: #f4f0f7; /* Mesma cor de fundo do style.css */
             padding-top: 20px;
             padding-bottom: 20px;
         }
@@ -20,37 +22,57 @@
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            max-width: 700px;
+            max-width: 800px; /* Largura do container */
             margin: auto;
         }
         .product-image {
             max-width: 100%;
-            height: auto;
+            height: auto; /* Volta para o tamanho original da imagem */
+            object-fit: contain; 
             border-radius: 8px;
             margin-bottom: 20px;
             display: block;
             margin-left: auto;
             margin-right: auto;
         }
-        h1 {
+        .product-header {
+            display: flex;
+            align-items: center; /* Alinha verticalmente nome e preço */
+            margin-bottom: 15px;
+            flex-wrap: wrap; /* Permite quebrar linha em telas pequenas */
+        }
+        .product-header h1 {
             color: #343a40;
-            font-size: 2.2em;
-            margin-bottom: 10px;
+            font-size: 2.5em; 
+            margin-bottom: 0; 
+            margin-right: 15px; 
+        }
+        .product-header .price {
+            font-size: 1.8em; 
+            color: #4a0072; /* Cor roxa para o preço */
+            font-weight: bold;
+            margin-top: 0;
+            margin-bottom: 0;
         }
         .product-description {
             color: #6c757d;
             line-height: 1.6;
             margin-bottom: 20px;
+            font-size: 0.95em;
         }
-        .price {
-            font-size: 2em;
-            color: #28a745; /* Cor verde para o preço */
-            font-weight: bold;
-            margin-top: 15px;
-            margin-bottom: 25px;
+        .form-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            background-color: #fcfcfc;
         }
-        .form-group {
-            margin-bottom: 20px;
+        .form-section-title {
+            color: #4a0072; /* Roxo escuro */
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #d1c4e9;
+            padding-bottom: 5px;
         }
         .form-label {
             font-weight: bold;
@@ -61,6 +83,7 @@
         .form-check-label {
             font-weight: normal;
             color: #343a40;
+            cursor: pointer; /* Indica que o label é clicável */
         }
         .checkbox-item {
             margin-bottom: 10px;
@@ -69,7 +92,7 @@
             resize: vertical;
         }
         .submit-button {
-            background-color: #007bff; /* Cor azul padrão do Bootstrap */
+            background-color: #7b1fa2; /* Roxo médio */
             color: white;
             padding: 12px 25px;
             font-size: 1.1em;
@@ -79,20 +102,28 @@
             transition: background-color 0.3s ease;
         }
         .submit-button:hover {
-            background-color: #0056b3;
+            background-color: #4a0072; /* Roxo escuro no hover */
+        }
+        .back-link-container {
+            margin-bottom: 20px;
         }
         .back-link {
-            display: inline-block;
-            margin-top: 30px;
-            padding: 10px 20px;
-            background-color: #6c757d; /* Cor cinza para voltar */
+            display: inline-flex; 
+            align-items: center;
+            padding: 8px 15px;
+            background-color: #6c757d; 
             color: white;
             text-decoration: none;
             border-radius: 5px;
             transition: background-color 0.3s ease;
+            font-size: 0.9em;
         }
         .back-link:hover {
             background-color: #5a6268;
+            color: white; 
+        }
+        .back-link svg {
+            margin-right: 5px;
         }
         .messages {
             list-style: none;
@@ -120,6 +151,40 @@
             color: #856404;
             border: 1px solid #ffeeba;
         }
+        
+        /* Estilos para o grupo de checkboxes de sabor e adicional */
+        .choice-group {
+            display: flex;
+            flex-wrap: wrap; /* Permite que os itens quebrem para a próxima linha */
+        }
+        .choice-item {
+            flex: 1 1 48%; /* Ocupa cerca de metade da largura, com flexibilidade */
+            margin-right: 2%; /* Espaçamento entre os itens */
+            display: flex; /* Para alinhar checkbox, label e input de quantidade */
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .choice-item:nth-child(2n) { /* Remove a margem direita do segundo item em cada linha */
+            margin-right: 0;
+        }
+        @media (max-width: 768px) {
+            .choice-item {
+                flex: 1 1 100%; /* Em telas pequenas, ocupa a largura total */
+                margin-right: 0;
+            }
+        }
+        .choice-item .form-check-input {
+            margin-top: 0; /* Alinha o checkbox */
+        }
+        .choice-item .form-check-label {
+            margin-left: 5px; /* Espaço entre checkbox e texto */
+            flex-grow: 1; /* Permite que o label ocupe espaço */
+        }
+        .choice-item .form-control-sm {
+            width: 60px; /* Largura para o campo de quantidade */
+            margin-left: auto; /* Empurra para a direita */
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -133,87 +198,125 @@
             </ul>
         {% endif %}
 
-        {% if produto %}
-            {# Imagem do Produto #}
-            {% if produto.imagem %}
-                <img src="{{ produto.imagem.url }}" alt="{{ produto.nome }}" class="product-image">
-            {% endif %}
+        {# Seta de Voltar #}
+        <div class="back-link-container">
+            <a href="{% url 'menu:listar_produtos' %}" class="back-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                </svg>
+                Voltar ao Cardápio
+            </a>
+        </div>
 
-            {# Nome e Descrição #}
-            <h1>{{ produto.nome }}</h1>
-            <p class="product-description">{{ produto.descricao }}</p>
-            
-            {# Preço Base do Produto #}
-            <p class="price">R$ {{ produto.preco_base|floatformat:2 }}</p>
+        {% if produto %}
+            <div class="row">
+                <div class="col-md-5 text-center">
+                    {# Imagem do Produto #}
+                    {% if produto.imagem %}
+                        <img src="{{ produto.imagem.url }}" alt="{{ produto.nome }}" class="product-image img-fluid">
+                    {% else %}
+                        <img src="{% static 'menu/images/placeholder.png' %}" alt="Imagem não disponível" class="product-image img-fluid">
+                    {% endif %}
+                </div>
+                <div class="col-md-7">
+                    {# Nome, Descrição e Preço #}
+                    <div class="product-header">
+                        <h1>{{ produto.nome }}</h1>
+                        <p class="price">R$ {{ produto.preco_base|floatformat:2 }}</p>
+                    </div>
+                    <p class="product-description">{{ produto.descricao }}</p>
+                </div>
+            </div>
 
             {# Formulário de Adição ao Carrinho #}
             <form action="{% url 'menu:adicionar_ao_carrinho' produto.id %}" method="post">
                 {% csrf_token %}
-                {# Campo hidden para redirecionar de volta a esta página após adicionar ao carrinho #}
-                <input type="hidden" name="next" value="{{ request.path }}">
+                <input type="hidden" name="next" value="{% url 'menu:listar_produtos' %}"> 
 
-                {# Campo de Quantidade do Produto Principal #}
-                <div class="form-group">
-                    <label for="quantidade" class="form-label">Quantidade:</label>
-                    <input type="number" id="quantidade" name="quantidade" value="1" min="1" class="form-control" style="width: 100px;">
-                </div>
-
-                {# Sabores Disponíveis (AGORA COM CAMPO DE QUANTIDADE) #}
+                {# Sabores Disponíveis #}
                 {% if sabores_disponiveis %}
-                    <div class="form-group">
-                        <label class="form-label">Sabores (defina a quantidade de cada):</label>
-                        {% for sabor in sabores_disponiveis %}
-                            <div class="d-flex align-items-center mb-2 checkbox-item">
-                                <label for="sabor_qty_{{ sabor.id }}" class="form-check-label me-3">
-                                    {{ sabor.nome }}
-                                </label>
-                                <input type="number"
-                                       id="sabor_qty_{{ sabor.id }}"
-                                       name="sabores_quantities_{{ sabor.id }}" {# Nome único para coletar a quantidade do sabor #}
-                                       value="0" {# Começa com 0 para o usuário definir #}
-                                       min="0" {# Permite 0 se não quiser nenhuma daquele sabor #}
-                                       class="form-control form-control-sm"
-                                       style="width: 60px;">
-                            </div>
-                        {% endfor %}
+                    <div class="form-section">
+                        <h3 class="form-section-title">Escolha seu(s) Sabor(es)</h3>
+                        <p class="text-muted small">Selecione os sabores e suas respectivas quantidades.</p>
+                        <div class="choice-group">
+                            {% for sabor in sabores_disponiveis %}
+                                <div class="choice-item">
+                                    <input class="form-check-input" 
+                                            type="checkbox" 
+                                            id="sabor_check_{{ sabor.id }}" 
+                                            name="sabores" 
+                                            value="{{ sabor.id }}"
+                                            onchange="toggleQuantityInput('sabor', {{ sabor.id }}, '{{ categoria_nome }}')">
+                                    <label class="form-check-label" for="sabor_check_{{ sabor.id }}">
+                                        {{ sabor.nome }}
+                                    </label>
+                                    {# Condicional para mostrar/esconder o campo de quantidade do sabor #}
+                                    {% if categoria_nome != 'Açaí' %} {# Mostra para Picolé/Pote, esconde para Açaí #}
+                                        <input type="number" 
+                                                id="sabor_qty_{{ sabor.id }}" 
+                                                name="sabores_quantities_{{ sabor.id }}" 
+                                                value="1" 
+                                                min="1" 
+                                                class="form-control form-control-sm" 
+                                                style="display: none;"> {# Esconde por padrão #}
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
                     </div>
                 {% endif %}
 
-                {# Adicionais Disponíveis (checkboxes com campo de quantidade) #}
+                {# Adicionais Disponíveis #}
                 {% if adicionais_disponiveis %}
-                    <div class="form-group">
-                        <label class="form-label">Adicionais:</label>
-                        {% for adicional in adicionais_disponiveis %}
-                            <div class="d-flex align-items-center mb-2 checkbox-item">
-                                <input class="form-check-input me-2"
-                                       type="checkbox"
-                                       id="adicional_check_{{ adicional.id }}"
-                                       name="adicionais"
-                                       value="{{ adicional.id }}"
-                                       onclick="toggleAdicionalQuantity('{{ adicional.id }}')">
-                                <label class="form-check-label me-3" for="adicional_check_{{ adicional.id }}">
-                                    {{ adicional.nome }} (+ R$ {{ adicional.preco|floatformat:2 }})
-                                </label>
-                                <input type="number"
-                                       id="adicional_qty_{{ adicional.id }}"
-                                       name="adicionais_quantities_{{ adicional.id }}"
-                                       value="1"
-                                       min="1"
-                                       class="form-control form-control-sm"
-                                       style="width: 60px; display: none;">
-                            </div>
-                        {% endfor %}
+                    <div class="form-section">
+                        <h3 class="form-section-title">Adicionais e Complementos</h3>
+                        <p class="text-muted small">Selecione os adicionais e suas respectivas quantidades.</p>
+                        <div class="choice-group">
+                            {% for adicional in adicionais_disponiveis %}
+                                <div class="choice-item">
+                                    <input class="form-check-input"
+                                            type="checkbox"
+                                            id="adicional_check_{{ adicional.id }}"
+                                            name="adicionais"
+                                            value="{{ adicional.id }}"
+                                            onchange="toggleQuantityInput('adicional', {{ adicional.id }}, '{{ categoria_nome }}')"> {# Passa categoria_nome também aqui #}
+                                    <label class="form-check-label" for="adicional_check_{{ adicional.id }}">
+                                        {{ adicional.nome }} (+ R$ {{ adicional.preco|floatformat:2 }})
+                                    </label>
+                                    {# NOVO: Adiciona a mesma condição de categoria para adicionais #}
+                                    {% if categoria_nome != 'Açaí' %}
+                                        <input type="number"
+                                                id="adicional_qty_{{ adicional.id }}"
+                                                name="adicionais_quantities_{{ adicional.id }}"
+                                                value="1"
+                                                min="1"
+                                                class="form-control form-control-sm"
+                                                style="display: none;"> {# Esconde por padrão #}
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
                     </div>
                 {% endif %}
 
                 {# Campo de Observações do Item #}
-                <div class="form-group">
-                    <label for="observacao_item" class="form-label">Observações para o item (ex: "sem lactose", "pouco açúcar"):</label>
-                    <textarea class="form-control" id="observacao_item" name="observacao_item" rows="3" placeholder="Ex: Sem gelo, com mais granulado"></textarea>
+                <div class="form-section">
+                    <h3 class="form-section-title">Observações do Pedido</h3>
+                    <label for="observacao_item" class="form-label">Alguma observação específica para este item?</label>
+                    <textarea class="form-control" id="observacao_item" name="observacao_item" rows="3" placeholder="Ex: Sem gelo, com mais granulado, bem cremoso..."></textarea>
                 </div>
 
+                {# Campo de Quantidade do Produto Principal (condicional) #}
+                {% if categoria_nome != 'Picolés' and categoria_nome != 'Potes (Massa)' %} {# Mostra para Açaí/Bebidas, esconde para Picolé/Pote #}
+                    <div class="form-section">
+                        <h3 class="form-section-title">Quantidade do Item Principal</h3>
+                        <label for="quantidade" class="form-label">Quantas unidades deste produto (ex: Quantos copos de Açaí):</label>
+                        <input type="number" id="quantidade" name="quantidade" value="1" min="1" class="form-control" style="width: 100px;">
+                    </div>
+                {% endif %}
+
                 {# Botão Adicionar ao Carrinho #}
-                <button type="submit" class="submit-button w-100">Adicionar ao Carrinho</button>
+                <button type="submit" class="submit-button w-100 mt-3">Adicionar ao Carrinho</button>
             </form>
 
         {% else %}
@@ -221,40 +324,50 @@
                 Produto não encontrado.
             </div>
         {% endif %}
-
-        {# Link para Voltar ao Cardápio #}
-        <a href="{% url 'menu:listar_produtos' %}" class="back-link">Voltar para o Cardápio</a>
     </div>
 
     {# Scripts do Bootstrap #}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
-    {# Script JavaScript para controlar a visibilidade da quantidade do adicional #}
+    {# Script JavaScript para controlar a visibilidade da quantidade #}
     <script>
-        function toggleAdicionalQuantity(adicionalId) {
-            var checkbox = document.getElementById('adicional_check_' + adicionalId);
-            var quantityInput = document.getElementById('adicional_qty_' + adicionalId);
+        function toggleQuantityInput(type, itemId, categoriaNome) {
+            const checkbox = document.getElementById(`${type}_check_${itemId}`);
+            const quantityInput = document.getElementById(`${type}_qty_${itemId}`);
 
-            if (checkbox.checked) {
-                quantityInput.style.display = 'block'; // Mostra o campo de quantidade
-                quantityInput.value = 1; // Define a quantidade inicial como 1
-            } else {
-                quantityInput.style.display = 'none'; // Esconde o campo de quantidade
-                quantityInput.value = 0; // Define a quantidade para 0 ao desmarcar para não ser enviado ou ter valor 0
+            if (quantityInput) { // Verifica se o campo de quantidade existe para este item
+                if (checkbox.checked) {
+                    // Se for Açaí (sabores ou adicionais), a quantidade deve permanecer oculta e ser 1
+                    if (categoriaNome === 'Açaí') {
+                        quantityInput.style.display = 'none';
+                        quantityInput.value = 1; // Garante que um valor seja enviado, mesmo oculto
+                    } else {
+                        // Para outras categorias (Picolés, Potes), mostra o campo e define para 1
+                        quantityInput.style.display = 'block';
+                        quantityInput.value = 1;
+                    }
+                } else {
+                    quantityInput.style.display = 'none'; // Esconde o campo de quantidade
+                    quantityInput.value = 0; // Define a quantidade para 0 ao desmarcar para não ser enviado
+                }
             }
         }
 
-        // Garante que os campos de quantidade estão escondidos quando a página carrega
+        // Garante que os campos de quantidade corretos estejam visíveis/ocultos ao carregar a página
         document.addEventListener('DOMContentLoaded', function() {
-            {% for adicional in adicionais_disponiveis %}
-                var checkbox = document.getElementById('adicional_check_{{ adicional.id }}');
-                var quantityInput = document.getElementById('adicional_qty_{{ adicional.id }}');
-                if (checkbox && quantityInput) {
-                    if (!checkbox.checked) {
-                        quantityInput.style.display = 'none';
-                    }
-                }
-            {% endfor %}
+            const categoriaNome = "{{ categoria_nome }}"; // Pega o nome da categoria do contexto do Django
+
+            // Para Sabores
+            document.querySelectorAll('input[name="sabores"]').forEach(checkbox => {
+                const saborId = checkbox.value;
+                toggleQuantityInput('sabor', saborId, categoriaNome); 
+            });
+
+            // Para Adicionais
+            document.querySelectorAll('input[name="adicionais"]').forEach(checkbox => {
+                const adicionalId = checkbox.value;
+                toggleQuantityInput('adicional', adicionalId, categoriaNome); // Passa categoriaNome também aqui
+            });
         });
     </script>
 </body>

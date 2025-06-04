@@ -1,5 +1,22 @@
-{% load static %} <!DOCTYPE html>
-<html lang="pt-br"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>{% block title %}Black Açaí e Sorveteria{% endblock %}</title> <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"> <link rel="stylesheet" href="{% static 'menu/css/style.css' %}"> <style> /* 9 */
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Black Açaí e Sorveteria{% endblock %}</title>
+    
+    {# Bootstrap CSS #}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    {# Bootstrap Icons CSS - ADICIONE AQUI #}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    {# Seu CSS personalizado #}
+    <link rel="stylesheet" href="{% static 'menu/css/style.css' %}">
+    
+    <style>
+        /* Seus estilos inline que você já tinha */
         body { font-family: 'Arial', sans-serif; background-color: #faf8f9; }
         .navbar-brand-custom { font-weight: bold; color: #5e35b1 !important; /* Roxo Açaí */ }
         .product-card { border: 1px solid #ddd; border-radius: 8px; margin-bottom: 20px; background-color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: transform .2s; }
@@ -18,7 +35,8 @@
         .messages-container { position: fixed; top: 70px; right: 20px; z-index: 1050; width: auto; max-width: 400px;}
     </style>
 
-    {% block extra_head %}{% endblock %} </head>
+    {% block extra_head %}{% endblock %}
+</head>
 <body> <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top shadow-sm"> <div class="container"> <a class="navbar-brand navbar-brand-custom" href="{% url 'menu:listar_produtos' %}">🍦 Black Açaí & Sorveteria</a> <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"> <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav"> <ul class="navbar-nav ms-auto"> <li class="nav-item">

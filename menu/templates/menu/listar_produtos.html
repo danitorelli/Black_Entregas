@@ -1,5 +1,7 @@
 {% extends "menu/base.html" %}
-{% load static %} {% block title %}Nosso Cardápio - Black Açaí{% endblock %}
+{% load static %}
+
+{% block title %}Nosso Cardápio - Black Açaí{% endblock %}
 
 {% block content %}
 <div class="text-center mb-5">
@@ -13,31 +15,104 @@
     </div>
 {% endif %}
 
+{# Botões de Filtro por Categoria #}
+<div class="d-flex justify-content-center flex-wrap mb-4 category-filter-buttons">
+    {# Botão "Todos" REMOVIDO daqui #}
+    {% for categoria in categorias %}
+        {# Adiciona 'data-default-active' à primeira categoria, que será ativada pelo JS #}
+        <button class="btn btn-outline-primary" data-category-id="{{ categoria.id }}" {% if forloop.first %}data-default-active="true"{% endif %}>{{ categoria.nome }}</button>
+    {% endfor %}
+</div>
+
 {% for categoria in categorias %}
-    {% if categoria.produtos.all %} {# Só mostra a categoria se tiver produtos disponíveis nela (a view já filtra por produto.disponivel) #}
-        <h2 class="category-title">{{ categoria.nome }}</h2>
-        {% if categoria.descricao %}<p class="text-muted">{{ categoria.descricao }}</p>{% endif %}
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-            {% for produto in categoria.produtos.all %}
-                <div class="col">
-                    <div class="card h-100 product-card">
-                        {% if produto.imagem %}
-                            <img src="{{ produto.imagem.url }}" class="card-img-top" alt="{{ produto.nome }}">
-                        {% else %}
-                            <img src="{% static 'menu/images/placeholder.png' %}" class="card-img-top" alt="Imagem não disponível">
-                        {% endif %}
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title">{{ produto.nome }}</h5>
-                            <p class="card-text">{{ produto.descricao|truncatewords:20 }}</p>
-                            <p class="card-text"><strong>R$ {{ produto.preco_base|stringformat:".2f" }}</strong></p>
-                            <div class="mt-auto">
-                                <a href="{% url 'menu:detalhe_produto' produto.id %}" class="btn btn-primary-custom w-100">Ver Detalhes e Adicionar</a>
+    {# A classe 'category-group' e 'data-category-id' são usadas pelo JavaScript para filtrar #}
+    <div class="category-group" id="category-{{ categoria.id }}">
+        {% if categoria.produtos.all %}
+            <h2 class="category-title">{{ categoria.nome }}</h2>
+            {% if categoria.descricao %}<p class="text-muted">{{ categoria.descricao }}</p>{% endif %}
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 justify-content-center"> {# Centraliza os cards #}
+                {% for produto in categoria.produtos.all %}
+                    <div class="col">
+                        <div class="card h-100 product-card">
+                            {% if produto.imagem %}
+                                <img src="{{ produto.imagem.url }}" class="card-img-top" alt="{{ produto.nome }}">
+                            {% else %}
+                                <img src="{% static 'menu/images/placeholder.png' %}" class="card-img-top" alt="Imagem não disponível">
+                            {% endif %}
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title">{{ produto.nome }}</h5>
+                                <p class="card-text">{{ produto.descricao|truncatewords:20 }}</p>
+                                <p class="card-text"><strong>R$ {{ produto.preco_base|stringformat:".2f" }}</strong></p>
+                                <div class="mt-auto">
+                                    {# Condição para o botão de "Ver Detalhes" ou "Adicionar ao Carrinho" #}
+                                    {% if produto.categoria.nome == 'Bebidas' %}
+                                        <form action="{% url 'menu:adicionar_ao_carrinho' produto.id %}" method="post" class="d-flex align-items-center">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="next" value="{{ request.path }}">
+                                            <input type="number" name="quantidade_bebida" value="1" min="1" class="form-control form-control-sm me-2" style="width: 60px;">
+                                            <button type="submit" class="btn btn-primary-custom flex-grow-1">Adicionar</button>
+                                        </form>
+                                    {% else %}
+                                        <a href="{% url 'menu:detalhe_produto' produto.id %}" class="btn btn-primary-custom w-100">Ver Detalhes e Adicionar</a>
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
 {% endfor %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterButtons = document.querySelectorAll('.category-filter-buttons .btn');
+        const categoryGroups = document.querySelectorAll('.category-group');
+
+        // FUNÇÃO PARA MOSTRAR CATEGORIAS
+        function showCategory(categoryId) {
+            categoryGroups.forEach(group => {
+                group.style.display = 'none'; // Esconde todos
+            });
+
+            // Se for 'all', o que não teremos mais, mas mantemos a segurança
+            if (categoryId === 'all') {
+                categoryGroups.forEach(group => {
+                    group.style.display = 'block';
+                });
+            } else {
+                const targetGroup = document.getElementById(`category-${categoryId}`);
+                if (targetGroup) {
+                    targetGroup.style.display = 'block'; // Mostra apenas o grupo da categoria clicada
+                }
+            }
+        }
+
+        // LÓGICA DE CLIQUE NOS BOTÕES
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const categoryId = this.dataset.categoryId;
+
+                // Remove 'active' de todos os botões e adiciona ao clicado
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+
+                showCategory(categoryId); // Chama a função para mostrar/esconder
+            });
+        });
+
+        // AO CARREGAR A PÁGINA: encontra o botão com 'data-default-active' e simula um clique
+        const defaultActiveButton = document.querySelector('.category-filter-buttons .btn[data-default-active="true"]');
+        if (defaultActiveButton) {
+            defaultActiveButton.click(); // Isso vai ativar o botão padrão e mostrar a categoria
+        } else if (filterButtons.length > 0) {
+            // Caso não haja 'data-default-active' (ex: nenhuma categoria no forloop.first),
+            // ativa o primeiro botão disponível para garantir que algo apareça.
+            filterButtons[0].click();
+        }
+    });
+</script>
 {% endblock %}

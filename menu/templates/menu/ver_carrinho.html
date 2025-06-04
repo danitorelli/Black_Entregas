@@ -1,109 +1,119 @@
-{% extends "menu/base.html" %} {# Se você tem um base.html, ele será estendido aqui #}
-{% load static %} {# Para carregar imagens estáticas, como placeholder_thumb.png #}
+{% extends "menu/base.html" %}
+{% load static %}
 
 {% block title %}Seu Carrinho - Black Açaí{% endblock %}
 
 {% block content %}
-<h1 class="mb-4">🛒 Seu Carrinho de Compras</h1>
+<div class="container my-5">
+    <h1 class="text-center mb-4 category-title">Seu Carrinho de Compras</h1>
 
-{% if not itens_carrinho %}
-    <div class="alert alert-info" role="alert">
-        Seu carrinho está vazio. <a href="{% url 'menu:listar_produtos' %}" class="alert-link">Comece a adicionar delícias!</a>
-    </div>
-{% else %}
-    <div class="table-responsive shadow-sm rounded mb-4">
-        <table class="table table-hover align-middle">
-            <thead class="table-light">
-                <tr>
-                    <th scope="col" style="width: 10%;">Imagem</th>
-                    <th scope="col" style="width: 35%;">Produto e Detalhes</th>
-                    <th scope="col" class="text-center" style="width: 10%;">Preço Unit.</th>
-                    <th scope="col" class="text-center" style="width: 15%;">Quantidade</th>
-                    <th scope="col" class="text-end" style="width: 15%;">Subtotal</th>
-                    <th scope="col" class="text-center" style="width: 15%;">Ação</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in itens_carrinho %}
-                <tr>
-                    <td>
-                        {% if item.imagem_url %}
-                            <img src="{{ item.imagem_url }}" alt="{{ item.nome }}" class="img-thumbnail" style="width: 70px; height: 70px; object-fit: cover;">
-                        {% else %}
-                            <img src="{% static 'menu/images/placeholder_thumb.png' %}" alt="Sem imagem" class="img-thumbnail" style="width: 70px; height: 70px; object-fit: cover;">
-                        {% endif %}
-                    </td>
-                    <td>
-                        <strong>{{ item.nome }}</strong><br>
-                        {# Sabores com quantidades #}
-                        {% if item.sabores_com_quantidades %}
-                            <small class="text-muted">Sabores:</small>
-                            <ul class="list-unstyled mb-0"> {# Remove bullets e padding padrão de UL #}
-                                {% for sabor in item.sabores_com_quantidades %}
-                                    <li>- {{ sabor.nome }} ({{ sabor.quantidade }}x)</li>
-                                {% endfor %}
-                            </ul>
-                        {% endif %}
-                        {# Adicionais com quantidades e preços #}
-                        {% if item.adicionais_com_quantidades %}
-                            <small class="text-muted mt-2 d-block">Adicionais:</small> {# d-block para nova linha #}
-                            <ul class="list-unstyled mb-0">
-                                {% for ad in item.adicionais_com_quantidades %}
-                                    <li>- {{ ad.nome }} ({{ ad.quantidade }}x - R$ {{ ad.preco_unitario }})</li>
-                                {% endfor %}
-                            </ul>
-                        {% endif %}
-                        {# Observação do item #}
-                        {% if item.observacao_item %}
-                            <small class="text-muted mt-2 d-block"><i>Obs: {{ item.observacao_item|truncatechars:50 }}</i></small>
-                        {% endif %}
-                    </td>
-                    <td class="text-center">R$ {{ item.preco_final_unitario|stringformat:".2f" }}</td>
-                    <td class="text-center">
-                        <form action="{% url 'menu:atualizar_carrinho' item.item_id_carrinho %}" method="post" class="d-inline-flex align-items-center">
-                            {% csrf_token %}
-                            <input type="number" name="quantidade" value="{{ item.quantidade }}" min="0" class="form-control form-control-sm" style="width: 70px; text-align: center;">
-                            <button type="submit" class="btn btn-sm btn-outline-primary ms-1" title="Atualizar Quantidade">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-repeat" viewBox="0 0 16 16">
-                                    <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"/>
-                                    <path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.5A5.002 5.002 0 0 0 8 3zM3.5 9A5.002 5.002 0 0 0 8 13c1.552 0 2.94-.707 3.857-1.818a.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.5z"/>
-                                </svg>
-                            </button>
-                        </form>
-                    </td>
-                    <td class="text-end"><strong>R$ {{ item.subtotal|stringformat:".2f" }}</strong></td>
-                    <td class="text-center">
-                        <form action="{% url 'menu:remover_do_carrinho' item.item_id_carrinho %}" method="post" class="d-inline">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Remover Item">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
-                                    <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z"/>
-                                </svg>
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-            <tfoot>
-                <tr>
-                    <td colspan="3" class="text-end"></td>
-                    <td class="text-center"><h4>Total:</h4></td>
-                    <td class="text-end"><h4><strong>R$ {{ valor_total_carrinho|stringformat:".2f" }}</strong></h4></td>
-                    <td></td>
-                </tr>
-            </tfoot>
-        </table>
-    </div>
+    {% if messages %}
+        <div class="messages-container">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
 
-    <div class="d-flex justify-content-between mt-4 flex-wrap gap-2">
-        <a href="{% url 'menu:listar_produtos' %}" class="btn btn-outline-secondary btn-lg">🛍️ Continuar Comprando</a>
-        {# O botão de finalizar pedido deve ser um FORM para enviar POST #}
-        <form action="{% url 'menu:finalizar_pedido' %}" method="post" style="display: inline;">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-primary-custom btn-lg">🚀 Finalizar Pedido e Enviar</button>
-        </form>
-    </div>
+    {% if itens_carrinho %}
+        <div class="card shadow-sm p-4">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="text-center">Produto</th>
+                            <th scope="col" class="text-center">Quantidade</th>
+                            <th scope="col" class="text-center">Detalhes</th> {# Nova coluna para detalhes #}
+                            <th scope="col" class="text-center">Preço Unit.</th>
+                            <th scope="col" class="text-center">Subtotal</th>
+                            <th scope="col" class="text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in itens_carrinho %}
+                            <tr>
+                                <td class="text-center">
+                                    {% if item.imagem_url %}
+                                        <img src="{{ item.imagem_url }}" alt="{{ item.nome }}" class="img-fluid rounded-circle me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                                    {% else %}
+                                        <img src="{% static 'menu/images/placeholder.png' %}" alt="Imagem" class="img-fluid rounded-circle me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                                    {% endif %}
+                                    <strong>{{ item.nome }}</strong>
+                                </td>
+                                <td class="text-center">
+                                    <form action="{% url 'menu:atualizar_carrinho' item.item_id_carrinho %}" method="post" class="d-flex align-items-center justify-content-center">
+                                        {% csrf_token %}
+                                        <input type="number" name="quantidade" value="{{ item.quantidade }}" min="1" class="form-control form-control-sm text-center" style="width: 70px;">
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary ms-2" title="Atualizar quantidade">
+                                            <i class="bi bi-arrow-clockwise"></i> 
+                                        </button>
+                                    </form>
+                                </td>
+                                <td class="text-start"> {# Alterado para text-start para alinhar os detalhes à esquerda #}
+                                    {% if item.sabores_detalhados %}
+                                        <div class="mb-1">
+                                            <strong class="text-muted">Sabores:</strong>
+                                            <ul class="list-unstyled mb-0 ms-2"> {# Lista sem marcadores e margem #}
+                                                {% for sabor in item.sabores_detalhados %}
+                                                    <li>{{ sabor.nome }} 
+                                                        {% if sabor.quantidade > 1 %}({{ sabor.quantidade }}x){% endif %}
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    {% endif %}
 
-{% endif %}
+                                    {% if item.adicionais_detalhados %}
+                                        <div class="mb-1">
+                                            <strong class="text-muted">Adicionais:</strong>
+                                            <ul class="list-unstyled mb-0 ms-2">
+                                                {% for adicional in item.adicionais_detalhados %}
+                                                    <li>{{ adicional.nome }} 
+                                                        {% if adicional.quantidade > 1 %} ({{ adicional.quantidade }}x){% endif %}
+                                                        {% if adicional.preco_unitario and adicional.preco_unitario != '0.00' %} 
+                                                            (+ R$ {{ adicional.subtotal|floatformat:2 }})
+                                                        {% endif %}
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    {% endif %}
+
+                                    {% if item.observacao_item %}
+                                        <div class="text-muted small border-top pt-1 mt-1"> {# Linha divisória e texto menor #}
+                                            <strong>Obs:</strong> {{ item.observacao_item }}
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">R$ {{ item.preco_final_unitario|floatformat:2 }}</td>
+                                <td class="text-center">R$ {{ item.subtotal|floatformat:2 }}</td>
+                                <td class="text-center">
+                                    <form action="{% url 'menu:remover_do_carrinho' item.item_id_carrinho %}" method="post">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger btn-sm" title="Remover item">
+                                            <i class="bi bi-trash"></i> 
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex justify-content-end align-items-center mt-4">
+                <h3 class="me-3 mb-0">Total do Pedido: <span class="text-primary">R$ {{ valor_total_carrinho|floatformat:2 }}</span></h3>
+                <a href="{% url 'menu:finalizar_pedido' %}" class="btn btn-primary-custom btn-lg">Finalizar Pedido</a>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center" role="alert">
+            Seu carrinho está vazio. <a href="{% url 'menu:listar_produtos' %}" class="alert-link">Explore nosso cardápio!</a>
+        </div>
+    {% endif %}
+
+</div>
 {% endblock %}
