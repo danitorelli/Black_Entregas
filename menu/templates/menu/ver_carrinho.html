@@ -1,5 +1,5 @@
-{% extends "menu/base.html" %}
-{% load static %}
+{% extends "menu/base.html" %} {# Se você tem um base.html, ele será estendido aqui #}
+{% load static %} {# Para carregar imagens estáticas, como placeholder_thumb.png #}
 
 {% block title %}Seu Carrinho - Black Açaí{% endblock %}
 
@@ -16,11 +16,11 @@
             <thead class="table-light">
                 <tr>
                     <th scope="col" style="width: 10%;">Imagem</th>
-                    <th scope="col" style="width: 30%;">Produto e Detalhes</th>
+                    <th scope="col" style="width: 35%;">Produto e Detalhes</th>
                     <th scope="col" class="text-center" style="width: 10%;">Preço Unit.</th>
                     <th scope="col" class="text-center" style="width: 15%;">Quantidade</th>
                     <th scope="col" class="text-end" style="width: 15%;">Subtotal</th>
-                    <th scope="col" class="text-center" style="width: 10%;">Ação</th>
+                    <th scope="col" class="text-center" style="width: 15%;">Ação</th>
                 </tr>
             </thead>
             <tbody>
@@ -35,18 +35,27 @@
                     </td>
                     <td>
                         <strong>{{ item.nome }}</strong><br>
-                        {% if item.sabores_nomes %}
-                            <small class="text-muted">Sabores: {{ item.sabores_nomes|join:", " }}</small><br>
+                        {# Sabores com quantidades #}
+                        {% if item.sabores_com_quantidades %}
+                            <small class="text-muted">Sabores:</small>
+                            <ul class="list-unstyled mb-0"> {# Remove bullets e padding padrão de UL #}
+                                {% for sabor in item.sabores_com_quantidades %}
+                                    <li>- {{ sabor.nome }} ({{ sabor.quantidade }}x)</li>
+                                {% endfor %}
+                            </ul>
                         {% endif %}
-                        {% if item.adicionais_nomes_precos %}
-                            <small class="text-muted">Adicionais:
-                            {% for ad in item.adicionais_nomes_precos %}
-                                {{ ad.nome }}{% if not forloop.last %}, {% endif %}
-                            {% endfor %}
-                            </small><br>
+                        {# Adicionais com quantidades e preços #}
+                        {% if item.adicionais_com_quantidades %}
+                            <small class="text-muted mt-2 d-block">Adicionais:</small> {# d-block para nova linha #}
+                            <ul class="list-unstyled mb-0">
+                                {% for ad in item.adicionais_com_quantidades %}
+                                    <li>- {{ ad.nome }} ({{ ad.quantidade }}x - R$ {{ ad.preco_unitario }})</li>
+                                {% endfor %}
+                            </ul>
                         {% endif %}
+                        {# Observação do item #}
                         {% if item.observacao_item %}
-                            <small class="text-muted"><i>Obs: {{ item.observacao_item|truncatechars:30 }}</i></small>
+                            <small class="text-muted mt-2 d-block"><i>Obs: {{ item.observacao_item|truncatechars:50 }}</i></small>
                         {% endif %}
                     </td>
                     <td class="text-center">R$ {{ item.preco_final_unitario|stringformat:".2f" }}</td>
@@ -89,7 +98,11 @@
 
     <div class="d-flex justify-content-between mt-4 flex-wrap gap-2">
         <a href="{% url 'menu:listar_produtos' %}" class="btn btn-outline-secondary btn-lg">🛍️ Continuar Comprando</a>
-        <a href="{% url 'menu:finalizar_pedido' %}" class="btn btn-primary-custom btn-lg">🚀 Finalizar Pedido e Enviar</a>
+        {# O botão de finalizar pedido deve ser um FORM para enviar POST #}
+        <form action="{% url 'menu:finalizar_pedido' %}" method="post" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary-custom btn-lg">🚀 Finalizar Pedido e Enviar</button>
+        </form>
     </div>
 
 {% endif %}
