@@ -172,45 +172,8 @@ body {
 }
 
 
-/* Media queries para responsividade - Bootstrap já faz muito, mas pode adicionar customizações */
-@media (max-width: 768px) {
-    .product-card {
-        max-width: 90%; /* Ajuste para mobile */
-    }
-    .product-card img {
-        max-height: 150px; /* Ajuste para mobile */
-    }
-    .category-title {
-        font-size: 1.8rem;
-    }
-    h1.display-4 {
-        font-size: 2.5rem;
-    }
-}
-
-
-/* Estilo para os botões de filtro de categoria */
-.category-filter-buttons .btn {
-    margin: 5px;
-    padding: 10px 20px;
-    border-radius: 25px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.category-filter-buttons .btn-outline-primary {
-    color: #7b1fa2;
-    border-color: #7b1fa2;
-}
-
-.category-filter-buttons .btn-outline-primary:hover,
-.category-filter-buttons .btn-outline-primary.active {
-    background-color: #7b1fa2;
-    color: white;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
 /* NOVO: Esconde os grupos de categoria por padrão */
+/* Removida a classe qty-input-hidden-by-default daqui, se existia */
 .category-group {
     display: none;
 }
@@ -235,4 +198,34 @@ body {
     h1.display-4 {
         font-size: 2.5rem;
     }
+}
+/* Novas regras para responsividade adicionais */
+@media (max-width: 576px) { /* Para telas muito pequenas (smartphones) */
+    .table-responsive .text-start ul {
+        padding-left: 10px; /* Reduz o recuo das listas de detalhes no carrinho */
+    }
+    .table-responsive .text-start strong {
+        display: block; /* Força o título do detalhe a ir para uma nova linha no carrinho */
+    }
+    .table-responsive .text-start small {
+        font-size: 0.75rem; /* Reduz ainda mais a fonte dos detalhes em mobile no carrinho */
+    }
+    .product-image { /* Ajuste para imagem do detalhe do produto */
+        max-height: 200px; 
+        width: auto; 
+    }
+}
+
+.back-link-container {
+    margin-bottom: 20px;
+}
+.back-link {
+    display: inline-flex; /* Mantém o ícone e texto na mesma linha */
+    align-items: center; /* Alinha verticalmente */
+    /* Remover estilos de cor e borda para usar os do Bootstrap/custom */
+    text-decoration: none; /* Garante que não tenha sublinhado por padrão */
+    font-weight: 500; /* Consistente com outros botões */
+}
+.back-link svg {
+    margin-right: 5px;
 }

@@ -5,6 +5,16 @@
 
 {% block content %}
 <div class="container my-5">
+    {# Seta de Voltar #}
+    <div class="back-link-container">
+        <a href="{% url 'menu:listar_produtos' %}" class="btn btn-outline-primary back-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+            </svg>
+            Voltar ao Cardápio
+        </a>
+    </div>
+    
     <h1 class="text-center mb-4 category-title">Seu Carrinho de Compras</h1>
 
     {% if messages %}
@@ -37,7 +47,7 @@
                             <tr>
                                 <td class="text-center">
                                     {% if item.imagem_url %}
-                                        <img src="{{ item.imagem_url }}" alt="{{ item.nome }}" class="img-fluid rounded-circle me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                                        <img src="{{ item.imagem.url }}" alt="{{ item.nome }}" class="img-fluid rounded-circle me-2" style="width: 50px; height: 50px; object-fit: cover;">
                                     {% else %}
                                         <img src="{% static 'menu/images/placeholder.png' %}" alt="Imagem" class="img-fluid rounded-circle me-2" style="width: 50px; height: 50px; object-fit: cover;">
                                     {% endif %}
@@ -106,7 +116,17 @@
 
             <div class="d-flex justify-content-end align-items-center mt-4">
                 <h3 class="me-3 mb-0">Total do Pedido: <span class="text-primary">R$ {{ valor_total_carrinho|floatformat:2 }}</span></h3>
+                
+                <form action="{% url 'menu:esvaziar_carrinho' %}" method="post" class="me-2"> {# Novo form para o botão esvaziar #}
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-secondary btn-lg">Esvaziar Carrinho</button>
+                </form>
+
                 <a href="{% url 'menu:finalizar_pedido' %}" class="btn btn-primary-custom btn-lg">Finalizar Pedido</a>
+            </div>
+            
+            <div class="d-flex justify-content-center mt-3"> {# Novo div para o botão de continuar comprando #}
+                <a href="{% url 'menu:listar_produtos' %}" class="btn btn-outline-primary btn-lg w-75">Continuar Comprando</a> {# Usando btn-outline-primary para consistência com o botão "Voltar" #}
             </div>
         </div>
     {% else %}

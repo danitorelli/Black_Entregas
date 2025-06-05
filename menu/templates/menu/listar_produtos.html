@@ -49,7 +49,7 @@
                                         <form action="{% url 'menu:adicionar_ao_carrinho' produto.id %}" method="post" class="d-flex align-items-center">
                                             {% csrf_token %}
                                             <input type="hidden" name="next" value="{{ request.path }}">
-                                            <input type="number" name="quantidade_bebida" value="1" min="1" class="form-control form-control-sm me-2" style="width: 60px;">
+                                            <input type="number" name="quantidade" value="1" min="1" class="form-control form-control-sm me-2" style="width: 60px;"> {# Alterado de quantidade_bebida para quantidade #}
                                             <button type="submit" class="btn btn-primary-custom flex-grow-1">Adicionar</button>
                                         </form>
                                     {% else %}

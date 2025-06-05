@@ -34,14 +34,19 @@
                             {% if item_data.sabores_detalhados %}
                                 <br><small class="text-muted">Sabores: 
                                     {% for sabor in item_data.sabores_detalhados %}
-                                        {{ sabor.nome }} ({{ sabor.quantidade }}){% if not forloop.last %}, {% endif %}
+                                        {{ sabor.nome }} 
+                                        {% if sabor.quantidade > 1 %}({{ sabor.quantidade }}x){% endif %}{% if not forloop.last %}, {% endif %}
                                     {% endfor %}
                                 </small>
                             {% endif %}
                             {% if item_data.adicionais_detalhados %}
                                 <br><small class="text-muted">Adicionais: 
                                     {% for adicional in item_data.adicionais_detalhados %}
-                                        {{ adicional.nome }} ({{ adicional.quantidade }}x R$ {{ adicional.preco_unitario }}){% if not forloop.last %}, {% endif %}
+                                        {{ adicional.nome }} 
+                                        {% if adicional.quantidade > 1 %}({{ adicional.quantidade }}x){% endif %}
+                                        {% if adicional.preco_unitario and adicional.preco_unitario != '0.00' %} 
+                                            (+ R$ {{ adicional.subtotal|floatformat:2 }})
+                                        {% endif %}{% if not forloop.last %}, {% endif %}
                                     {% endfor %}
                                 </small>
                             {% endif %}
@@ -49,6 +54,7 @@
                                 <br><small class="text-muted">Obs: {{ item_data.observacao_item }}</small>
                             {% endif %}
                         </div>
+                        {# Preço exibido aqui, usando o subtotal já calculado #}
                         <span class="text-success">R$ {{ item_data.subtotal|floatformat:2 }}</span>
                     </li>
                 {% endfor %}
@@ -63,14 +69,11 @@
 
                 <h3 class="mb-3 text-primary mt-4">Suas Informações</h3>
                 <div class="row g-3 mb-4">
-                    <div class="col-md-6">
-                        <label for="nome_cliente" class="form-label">Nome *</label>
+                    <div class="col-12"> {# Alterado de col-md-6 para col-12 #}
+                        <label for="nome_cliente" class="form-label">Nome Completo *</label>
                         <input type="text" class="form-control" id="nome_cliente" name="nome_cliente" required>
                     </div>
-                    <div class="col-md-6">
-                        <label for="sobrenome_cliente" class="form-label">Sobrenome *</label>
-                        <input type="text" class="form-control" id="sobrenome_cliente" name="sobrenome_cliente" required>
-                    </div>
+                    {# REMOVIDO: Sobrenome #}
                     <div class="col-12">
                         <label for="telefone_cliente" class="form-label">Telefone (WhatsApp) *</label>
                         <input type="tel" class="form-control" id="telefone_cliente" name="telefone_cliente" placeholder="Ex: (99) 99999-9999" required>
@@ -81,10 +84,7 @@
                         <input type="text" class="form-control" id="endereco_cliente" name="endereco_cliente" placeholder="Rua, Número, Bairro, Cidade, Estado" required>
                         <small class="form-text text-muted">Seu endereço completo para entrega.</small>
                     </div>
-                    <div class="col-12">
-                        <label for="cpf_cliente" class="form-label">CPF (Opcional)</label>
-                        <input type="text" class="form-control" id="cpf_cliente" name="cpf_cliente" placeholder="Ex: 000.000.000-00">
-                    </div>
+                    {# REMOVIDO: CPF #}
                 </div>
 
                 <h3 class="mb-3 text-primary">Forma de Pagamento</h3>
@@ -139,19 +139,17 @@
         function toggleTrocoSection() {
             if (pagamentoDinheiroRadio.checked) {
                 trocoSection.style.display = 'block';
-                trocoParaInput.setAttribute('required', 'required'); // Torna o campo obrigatório se dinheiro
-                trocoParaInput.setAttribute('min', '{{ valor_total_carrinho|floatformat:2 }}'); // Define o mínimo como o valor total
+                trocoParaInput.setAttribute('required', 'required'); 
+                trocoParaInput.setAttribute('min', '{{ valor_total_carrinho|floatformat:2 }}'); 
             } else {
                 trocoSection.style.display = 'none';
                 trocoParaInput.removeAttribute('required');
-                trocoParaInput.value = ''; // Limpa o valor se não for dinheiro
+                trocoParaInput.value = ''; 
             }
         }
 
-        // Inicializa a visibilidade da seção de troco ao carregar a página
         toggleTrocoSection();
 
-        // Adiciona listeners para quando a seleção de pagamento mudar
         document.querySelectorAll('input[name="forma_pagamento"]').forEach(radio => {
             radio.addEventListener('change', toggleTrocoSection);
         });

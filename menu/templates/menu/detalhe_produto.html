@@ -27,7 +27,7 @@
         }
         .product-image {
             max-width: 100%;
-            height: auto; /* Volta para o tamanho original da imagem */
+            height: auto; 
             object-fit: contain; 
             border-radius: 8px;
             margin-bottom: 20px;
@@ -37,9 +37,9 @@
         }
         .product-header {
             display: flex;
-            align-items: center; /* Alinha verticalmente nome e preço */
+            align-items: center; 
             margin-bottom: 15px;
-            flex-wrap: wrap; /* Permite quebrar linha em telas pequenas */
+            flex-wrap: wrap; 
         }
         .product-header h1 {
             color: #343a40;
@@ -49,7 +49,7 @@
         }
         .product-header .price {
             font-size: 1.8em; 
-            color: #4a0072; /* Cor roxa para o preço */
+            color: #4a0072; 
             font-weight: bold;
             margin-top: 0;
             margin-bottom: 0;
@@ -68,7 +68,7 @@
             background-color: #fcfcfc;
         }
         .form-section-title {
-            color: #4a0072; /* Roxo escuro */
+            color: #4a0072; 
             font-size: 1.4rem;
             margin-bottom: 15px;
             border-bottom: 2px solid #d1c4e9;
@@ -83,7 +83,7 @@
         .form-check-label {
             font-weight: normal;
             color: #343a40;
-            cursor: pointer; /* Indica que o label é clicável */
+            cursor: pointer; 
         }
         .checkbox-item {
             margin-bottom: 10px;
@@ -92,7 +92,7 @@
             resize: vertical;
         }
         .submit-button {
-            background-color: #7b1fa2; /* Roxo médio */
+            background-color: #7b1fa2; 
             color: white;
             padding: 12px 25px;
             font-size: 1.1em;
@@ -102,7 +102,7 @@
             transition: background-color 0.3s ease;
         }
         .submit-button:hover {
-            background-color: #4a0072; /* Roxo escuro no hover */
+            background-color: #4a0072; 
         }
         .back-link-container {
             margin-bottom: 20px;
@@ -152,38 +152,47 @@
             border: 1px solid #ffeeba;
         }
         
-        /* Estilos para o grupo de checkboxes de sabor e adicional */
         .choice-group {
             display: flex;
-            flex-wrap: wrap; /* Permite que os itens quebrem para a próxima linha */
+            flex-wrap: wrap; 
         }
         .choice-item {
-            flex: 1 1 48%; /* Ocupa cerca de metade da largura, com flexibilidade */
-            margin-right: 2%; /* Espaçamento entre os itens */
-            display: flex; /* Para alinhar checkbox, label e input de quantidade */
+            flex: 1 1 48%; 
+            margin-right: 2%; 
+            display: flex; 
             align-items: center;
             margin-bottom: 10px;
         }
-        .choice-item:nth-child(2n) { /* Remove a margem direita do segundo item em cada linha */
+        .choice-item:nth-child(2n) { 
             margin-right: 0;
         }
         @media (max-width: 768px) {
             .choice-item {
-                flex: 1 1 100%; /* Em telas pequenas, ocupa a largura total */
+                flex: 1 1 100%; 
                 margin-right: 0;
             }
         }
         .choice-item .form-check-input {
-            margin-top: 0; /* Alinha o checkbox */
+            margin-top: 0; 
         }
         .choice-item .form-check-label {
-            margin-left: 5px; /* Espaço entre checkbox e texto */
-            flex-grow: 1; /* Permite que o label ocupe espaço */
+            margin-left: 5px; 
+            flex-grow: 1; 
         }
         .choice-item .form-control-sm {
-            width: 60px; /* Largura para o campo de quantidade */
-            margin-left: auto; /* Empurra para a direita */
+            width: 60px; 
+            margin-left: auto; 
             text-align: center;
+        }
+
+        /* Removida a classe qty-input-hidden-by-default daqui do CSS */
+
+        /* Novas regras para responsividade */
+        @media (max-width: 576px) { 
+            .product-image {
+                max-height: 200px; 
+                width: auto; 
+            }
         }
     </style>
 </head>
@@ -200,7 +209,7 @@
 
         {# Seta de Voltar #}
         <div class="back-link-container">
-            <a href="{% url 'menu:listar_produtos' %}" class="back-link">
+            <a href="{% url 'menu:listar_produtos' %}" class="btn btn-outline-primary back-link"> {# Adicionado btn btn-outline-primary #}
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
                     <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
                 </svg>
@@ -229,11 +238,11 @@
             </div>
 
             {# Formulário de Adição ao Carrinho #}
-            <form action="{% url 'menu:adicionar_ao_carrinho' produto.id %}" method="post">
+            <form action="{% url 'menu:adicionar_ao_carrinho' produto.id %}" method="post" id="product-form"> {# Adicionado ID para JS #}
                 {% csrf_token %}
-                <input type="hidden" name="next" value="{% url 'menu:listar_produtos' %}"> 
+                <input type="hidden" name="next" value="{% url 'menu:ver_carrinho' %}">
 
-                {# Sabores Disponíveis #}
+                {# Sabores Disponíveis (com checkboxes e quantidade ao lado) #}
                 {% if sabores_disponiveis %}
                     <div class="form-section">
                         <h3 class="form-section-title">Escolha seu(s) Sabor(es)</h3>
@@ -246,19 +255,21 @@
                                             id="sabor_check_{{ sabor.id }}" 
                                             name="sabores" 
                                             value="{{ sabor.id }}"
-                                            onchange="toggleQuantityInput('sabor', {{ sabor.id }}, '{{ categoria_nome }}')">
+                                            onchange="handleQuantityInputs('sabor', {{ sabor.id }})"> 
                                     <label class="form-check-label" for="sabor_check_{{ sabor.id }}">
                                         {{ sabor.nome }}
                                     </label>
-                                    {# Condicional para mostrar/esconder o campo de quantidade do sabor #}
-                                    {% if categoria_nome != 'Açaí' %} {# Mostra para Picolé/Pote, esconde para Açaí #}
+                                    {# ATENÇÃO: Para Picolé/Pote, a quantidade DEVE ser visível por padrão. Para Açaí, DEVE ser hidden. #}
+                                    {% if categoria_nome == 'Picolés' or categoria_nome == 'Potes (Massa)' %} 
                                         <input type="number" 
                                                 id="sabor_qty_{{ sabor.id }}" 
                                                 name="sabores_quantities_{{ sabor.id }}" 
-                                                value="1" 
-                                                min="1" 
-                                                class="form-control form-control-sm" 
-                                                style="display: none;"> {# Esconde por padrão #}
+                                                class="form-control form-control-sm"> {# Removido min, value e classe #}
+                                    {% else %} 
+                                        <input type="hidden" 
+                                                id="sabor_qty_{{ sabor.id }}" 
+                                                name="sabores_quantities_{{ sabor.id }}" 
+                                                value="1"> 
                                     {% endif %}
                                 </div>
                             {% endfor %}
@@ -266,7 +277,7 @@
                     </div>
                 {% endif %}
 
-                {# Adicionais Disponíveis #}
+                {# Adicionais Disponíveis (checkboxes com campo de quantidade) #}
                 {% if adicionais_disponiveis %}
                     <div class="form-section">
                         <h3 class="form-section-title">Adicionais e Complementos</h3>
@@ -279,19 +290,21 @@
                                             id="adicional_check_{{ adicional.id }}"
                                             name="adicionais"
                                             value="{{ adicional.id }}"
-                                            onchange="toggleQuantityInput('adicional', {{ adicional.id }}, '{{ categoria_nome }}')"> {# Passa categoria_nome também aqui #}
+                                            onchange="handleQuantityInputs('adicional', {{ adicional.id }})"> 
                                     <label class="form-check-label" for="adicional_check_{{ adicional.id }}">
                                         {{ adicional.nome }} (+ R$ {{ adicional.preco|floatformat:2 }})
                                     </label>
-                                    {# NOVO: Adiciona a mesma condição de categoria para adicionais #}
-                                    {% if categoria_nome != 'Açaí' %}
+                                    {# ATENÇÃO: Para Açaí, a quantidade do adicional DEVE ser hidden. Para outros, DEVE aparecer. #}
+                                    {% if categoria_nome == 'Açaí' %}
+                                        <input type="hidden"
+                                                id="adicional_qty_{{ adicional.id }}"
+                                                name="adicionais_quantities_{{ adicional.id }}"
+                                                value="1"> 
+                                    {% else %}
                                         <input type="number"
                                                 id="adicional_qty_{{ adicional.id }}"
                                                 name="adicionais_quantities_{{ adicional.id }}"
-                                                value="1"
-                                                min="1"
-                                                class="form-control form-control-sm"
-                                                style="display: none;"> {# Esconde por padrão #}
+                                                class="form-control form-control-sm"> {# Removido min, value e classe #}
                                     {% endif %}
                                 </div>
                             {% endfor %}
@@ -307,16 +320,18 @@
                 </div>
 
                 {# Campo de Quantidade do Produto Principal (condicional) #}
-                {% if categoria_nome != 'Picolés' and categoria_nome != 'Potes (Massa)' %} {# Mostra para Açaí/Bebidas, esconde para Picolé/Pote #}
+                {# Exibe para Açaí/Bebidas, esconde para Picolé/Pote #}
+                {% if categoria_nome == 'Bebidas' %} 
                     <div class="form-section">
                         <h3 class="form-section-title">Quantidade do Item Principal</h3>
                         <label for="quantidade" class="form-label">Quantas unidades deste produto (ex: Quantos copos de Açaí):</label>
                         <input type="number" id="quantidade" name="quantidade" value="1" min="1" class="form-control" style="width: 100px;">
                     </div>
-                {% endif %}
+                {% endif %} 
 
                 {# Botão Adicionar ao Carrinho #}
                 <button type="submit" class="submit-button w-100 mt-3">Adicionar ao Carrinho</button>
+                
             </form>
 
         {% else %}
@@ -331,42 +346,124 @@
 
     {# Script JavaScript para controlar a visibilidade da quantidade #}
     <script>
-        function toggleQuantityInput(type, itemId, categoriaNome) {
+        // Função para lidar com a mudança de checkbox de sabor/adicional
+        function handleQuantityInputs(type, itemId) {
             const checkbox = document.getElementById(`${type}_check_${itemId}`);
             const quantityInput = document.getElementById(`${type}_qty_${itemId}`);
 
-            if (quantityInput) { // Verifica se o campo de quantidade existe para este item
-                if (checkbox.checked) {
-                    // Se for Açaí (sabores ou adicionais), a quantidade deve permanecer oculta e ser 1
-                    if (categoriaNome === 'Açaí') {
-                        quantityInput.style.display = 'none';
-                        quantityInput.value = 1; // Garante que um valor seja enviado, mesmo oculto
-                    } else {
-                        // Para outras categorias (Picolés, Potes), mostra o campo e define para 1
-                        quantityInput.style.display = 'block';
-                        quantityInput.value = 1;
+            if (quantityInput) { // Garante que o input de quantidade existe
+                if (quantityInput.type === 'number') { // Apenas age se for um input de número (visível/ocultável)
+                    if (checkbox.checked) {
+                        quantityInput.style.display = 'block'; // Mostra o campo
+                        quantityInput.value = quantityInput.value || 1; // Mantém o valor atual ou define como 1
+                    } else { // Checkbox desmarcado
+                        quantityInput.style.display = 'none'; // Esconde o campo
+                        quantityInput.value = 0; // Zera o valor para não ser enviado
                     }
-                } else {
-                    quantityInput.style.display = 'none'; // Esconde o campo de quantidade
-                    quantityInput.value = 0; // Define a quantidade para 0 ao desmarcar para não ser enviado
+                } else if (quantityInput.type === 'hidden') { // Se for um input hidden (Açaí)
+                    // Apenas ajusta o valor, não o display
+                    quantityInput.value = checkbox.checked ? 1 : 0; 
                 }
             }
         }
 
-        // Garante que os campos de quantidade corretos estejam visíveis/ocultos ao carregar a página
         document.addEventListener('DOMContentLoaded', function() {
-            const categoriaNome = "{{ categoria_nome }}"; // Pega o nome da categoria do contexto do Django
+            // Adiciona um listener para o evento submit do formulário para verificar antes de enviar
+            const productForm = document.getElementById('product-form');
+            if (productForm) {
+                productForm.addEventListener('submit', function(event) {
+                    let hasSelectedOption = false;
 
-            // Para Sabores
+                    // Pega o nome da categoria do contexto do Django
+                    const categoriaNome = "{{ categoria_nome }}"; 
+
+                    // Validação para Picolé/Pote: requer pelo menos um sabor ou adicional com quantidade > 0
+                    if (categoriaNome === 'Picolés' || categoriaNome === 'Potes (Massa)') {
+                        // Verifica sabores selecionados e com quantidade > 0
+                        document.querySelectorAll('input[name="sabores"]').forEach(checkbox => { // Iterar sobre todos os checkboxes
+                            const qtyInput = document.getElementById(`sabor_qty_${checkbox.value}`);
+                            // Se o input de quantidade existe (é do tipo number) e o checkbox está checado E a quantidade > 0
+                            if (qtyInput && qtyInput.type === 'number' && checkbox.checked && parseInt(qtyInput.value) > 0) {
+                                hasSelectedOption = true;
+                            }
+                        });
+                        // Verifica adicionais selecionados e com quantidade > 0
+                        document.querySelectorAll('input[name="adicionais"]').forEach(checkbox => { // Iterar sobre todos
+                            const qtyInput = document.getElementById(`adicional_qty_${checkbox.value}`);
+                            if (qtyInput && qtyInput.type === 'number' && checkbox.checked && parseInt(qtyInput.value) > 0) {
+                                hasSelectedOption = true;
+                            }
+                        });
+
+                        if (!hasSelectedOption) {
+                            alert("Por favor, selecione pelo menos um sabor ou adicional para este produto e defina sua quantidade.");
+                            event.preventDefault(); // Impede o envio do formulário
+                            return; // Sai da função
+                        }
+                    } else if (categoriaNome === 'Açaí' || categoriaNome == 'Bebidas') {
+                         // Para Açaí/Bebidas, verifica a quantidade principal
+                         const principalQuantity = document.getElementById('quantidade');
+                         if (principalQuantity && parseInt(principalQuantity.value) <= 0) {
+                             alert("Por favor, defina uma quantidade para este produto.");
+                             event.preventDefault();
+                             return;
+                         }
+                         // Se Açaí, garante que pelo menos 1 sabor seja selecionado se houver sabores disponíveis
+                         if (categoriaNome === 'Açaí' && document.querySelectorAll('input[name="sabores"]').length > 0) {
+                             let hasSelectedSaborForAcai = false;
+                             document.querySelectorAll('input[name="sabores"]').forEach(checkbox => {
+                                 const qtyInput = document.getElementById(`sabor_qty_${checkbox.value}`);
+                                 // Para Açaí, o qtyInput é hidden. value deve ser 1 se marcado.
+                                 if (qtyInput && qtyInput.type === 'hidden' && checkbox.checked && parseInt(qtyInput.value) > 0) { // Adicionada a verificação checkbox.checked
+                                     hasSelectedSaborForAcai = true;
+                                 }
+                             });
+                             if (!hasSelectedSaborForAcai) {
+                                 alert("Por favor, selecione pelo menos um sabor para o Açaí.");
+                                 event.preventDefault();
+                                 return;
+                             }
+                         }
+                    }
+                    // Se chegar aqui, o formulário pode ser enviado.
+                });
+            }
+
+
+            // Inicializa estados dos sabores
             document.querySelectorAll('input[name="sabores"]').forEach(checkbox => {
                 const saborId = checkbox.value;
-                toggleQuantityInput('sabor', saborId, categoriaNome); 
+                const quantityInput = document.getElementById(`sabor_qty_${saborId}`);
+                if (quantityInput) {
+                    // Ao carregar, se for um input de número, chame a função para inicializar o estado
+                    if (quantityInput.type === 'number') {
+                        handleQuantityInputs('sabor', saborId); 
+                    } else if (quantityInput.type === 'hidden') { // Se é hidden (Açaí)
+                        quantityInput.value = checkbox.checked ? 1 : 0;
+                    }
+                    // Adiciona o event listener de mudança para cada checkbox
+                    checkbox.addEventListener('change', function() {
+                        handleQuantityInputs('sabor', saborId);
+                    });
+                }
             });
 
-            // Para Adicionais
+            // Inicializa estados dos adicionais
             document.querySelectorAll('input[name="adicionais"]').forEach(checkbox => {
                 const adicionalId = checkbox.value;
-                toggleQuantityInput('adicional', adicionalId, categoriaNome); // Passa categoriaNome também aqui
+                const quantityInput = document.getElementById(`adicional_qty_${adicionalId}`);
+                if (quantityInput) {
+                    // Ao carregar, se for um input de número, chame a função para inicializar o estado
+                    if (quantityInput.type === 'number') {
+                        handleQuantityInputs('adicional', adicionalId); 
+                    } else if (quantityInput.type === 'hidden') { // Se é hidden (Açaí)
+                        quantityInput.value = checkbox.checked ? 1 : 0;
+                    }
+                    // Adiciona o event listener de mudança para cada checkbox
+                    checkbox.addEventListener('change', function() {
+                        handleQuantityInputs('adicional', adicionalId);
+                    });
+                }
             });
         });
     </script>
