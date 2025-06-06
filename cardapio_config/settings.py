@@ -24,9 +24,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY_DJANGO') # Carrega do .env
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG_DJANGO', default=False, cast=bool) # Carrega do .env
+#DEBUG = config('DEBUG_DJANGO', default=False, cast=bool) # Carrega do .env
+DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+#ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['danitorelli.pythonanywhere.com', '127.0.0.1', 'localhost']
 
 
 # Application definition
