@@ -229,3 +229,34 @@ body {
 .back-link svg {
     margin-right: 5px;
 }
+
+/* Estilos específicos para o card de finalizar pedido (efeito "flutuante") */
+.finalizar-card-layout { /* Classe adicionada ao <div class="card"> no finalizar_pedido.html */
+    max-width: 550px; /* Largura menor para a sensação de flutuar */
+    margin-left: auto; /* Centraliza horizontalmente */
+    margin-right: auto;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.25); /* Sombra mais pronunciada para dar efeito flutuante */
+    border-radius: 15px; /* Bordas mais arredondadas */
+    padding: 30px; /* Padding interno */
+    margin-top: 30px; /* Margem do topo para que não fique colado */
+    margin-bottom: 30px; /* Margem da base */
+}
+
+/* Ajustes de responsividade para o card de finalizar pedido */
+@media (max-width: 768px) { /* Tablets */
+    .finalizar-card-layout {
+        max-width: 95%; /* Ajusta para quase largura total em tablets */
+        margin-left: auto;
+        margin-right: auto;
+        padding: 20px; /* Reduz padding interno */
+    }
+}
+@media (max-width: 576px) { /* Celulares pequenos */
+    .finalizar-card-layout {
+        max-width: 100%; /* Largura total em celulares muito pequenos */
+        border-radius: 0; /* Remove arredondamento em largura total */
+        margin-top: 0; /* Remove margem do topo em tela cheia */
+        margin-bottom: 0;
+        padding: 15px;
+    }
+}

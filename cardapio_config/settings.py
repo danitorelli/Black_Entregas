@@ -143,6 +143,7 @@ MEDIA_ROOT = BASE_DIR / 'mediafiles' # BASE_DIR já deve estar definido no topo 
 
 
 # Session settings for cart persistence
+
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False # A sessão não expira ao fechar o navegador
 SESSION_COOKIE_AGE = 30 * 60 # 30 minutos em segundos (30 * 60 = 1800 segundos)
 

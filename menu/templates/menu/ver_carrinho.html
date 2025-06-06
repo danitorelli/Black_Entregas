@@ -47,7 +47,7 @@
                             <tr>
                                 <td class="text-center">
                                     {% if item.imagem_url %}
-                                        <img src="{{ item.imagem.url }}" alt="{{ item.nome }}" class="img-fluid rounded-circle me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                                        <img src="{{ item.imagem_url }}" alt="{{ item.nome }}" class="img-fluid rounded-circle me-2" style="width: 50px; height: 50px; object-fit: cover;">
                                     {% else %}
                                         <img src="{% static 'menu/images/placeholder.png' %}" alt="Imagem" class="img-fluid rounded-circle me-2" style="width: 50px; height: 50px; object-fit: cover;">
                                     {% endif %}

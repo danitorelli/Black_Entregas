@@ -1,0 +1,55 @@
+{% extends "menu/base.html" %}
+{% load static %}
+
+{% block title %}Pedido Confirmado!{% endblock %}
+
+{% block content %}
+<div class="container my-5 text-center">
+    <div class="card shadow-sm p-4 mx-auto" style="max-width: 600px;">
+        <h1 class="mb-4 text-success"><i class="bi bi-check-circle-fill"></i> Pedido Confirmado!</h1>
+        <p class="lead">Seu pedido foi registrado com sucesso. Obrigado por escolher Black Açaí e Sorveteria!</p>
+        
+        <p><strong>ID do Pedido:</strong> {{ pedido.id_pedido_cliente.hex|slice:":8" }}</p>
+        <p><strong>Valor Total:</strong> R$ {{ pedido.valor_total|floatformat:2 }}</p>
+        
+        {# AVISO PARA REDIRECIONAMENTO AUTOMÁTICO #}
+        <p class="mt-4">
+            Estamos te redirecionando para o nosso WhatsApp com os detalhes do pedido...
+        </p>
+        <p class="text-muted small">
+            Se o redirecionamento não acontecer automaticamente, por favor, clique no botão abaixo:
+        </p>
+
+        {% if link_whatsapp %}
+            {# Botão de redirecionamento manual caso o automático falhe #}
+            <a href="{{ link_whatsapp }}" target="_blank" class="btn btn-success btn-lg mt-3 w-75 mx-auto" id="whatsapp-redirect-button">
+                <i class="bi bi-whatsapp"></i> Abrir WhatsApp (Manual)
+            </a>
+        {% else %}
+            <div class="alert alert-warning mt-4">
+                Não foi possível gerar o link do WhatsApp. Por favor, entre em contato com a loja manualmente.
+            </div>
+        {% endif %}
+
+        <div class="mt-5">
+            <a href="{% url 'menu:listar_produtos' %}" class="btn btn-outline-primary">Voltar ao Cardápio</a>
+        </div>
+    </div>
+</div>
+
+{# Script para redirecionamento automático #}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const whatsappLink = "{{ link_whatsapp }}";
+        if (whatsappLink) {
+            // Tenta redirecionar automaticamente para o WhatsApp
+            window.location.href = whatsappLink;
+
+            // Opcional: Adicionar um pequeno atraso antes do redirecionamento
+            // setTimeout(function() {
+            //     window.location.href = whatsappLink;
+            // }, 1000); // Redireciona após 1 segundo
+        }
+    });
+</script>
+{% endblock %}

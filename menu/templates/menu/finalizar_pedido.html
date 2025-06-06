@@ -5,8 +5,10 @@
 
 {% block content %}
 <div class="container my-5">
+    {# Main title, same as before #}
     <h1 class="text-center mb-4 category-title">Finalizar Seu Pedido</h1>
 
+    {# Messages, same as before #}
     {% if messages %}
         <div class="messages-container">
             {% for message in messages %}
@@ -18,13 +20,17 @@
         </div>
     {% endif %}
 
+    {# If cart is empty, same as before #}
     {% if not carrinho %}
         <div class="alert alert-warning text-center" role="alert">
             Seu carrinho está vazio. Por favor, adicione produtos antes de finalizar.
             <a href="{% url 'menu:listar_produtos' %}" class="alert-link">Ver Cardápio</a>
         </div>
     {% else %}
-        <div class="card shadow-sm p-4">
+        {# The main card container for the "floating" effect #}
+        <div class="card shadow-sm p-4 finalizar-card-layout"> {# Added 'finalizar-card-layout' for specific styling #}
+
+            {# Resumo do Pedido - same as before #}
             <h3 class="mb-3 text-primary">Resumo do Pedido</h3>
             <ul class="list-group list-group-flush mb-4">
                 {% for item_id, item_data in carrinho.items %}
@@ -32,19 +38,19 @@
                         <div>
                             <strong>{{ item_data.quantidade }}x {{ item_data.nome }}</strong>
                             {% if item_data.sabores_detalhados %}
-                                <br><small class="text-muted">Sabores: 
+                                <br><small class="text-muted">Sabores:
                                     {% for sabor in item_data.sabores_detalhados %}
-                                        {{ sabor.nome }} 
+                                        {{ sabor.nome }}
                                         {% if sabor.quantidade > 1 %}({{ sabor.quantidade }}x){% endif %}{% if not forloop.last %}, {% endif %}
                                     {% endfor %}
                                 </small>
                             {% endif %}
                             {% if item_data.adicionais_detalhados %}
-                                <br><small class="text-muted">Adicionais: 
+                                <br><small class="text-muted">Adicionais:
                                     {% for adicional in item_data.adicionais_detalhados %}
-                                        {{ adicional.nome }} 
-                                        {% if adicional.quantidade > 1 %}({{ adicional.quantidade }}x){% endif %}
-                                        {% if adicional.preco_unitario and adicional.preco_unitario != '0.00' %} 
+                                        {{ adicional.nome }}
+                                        {% if adicional.quantidade > 1 %} ({{ adicional.quantidade }}x){% endif %}
+                                        {% if adicional.preco_unitario and adicional.preco_unitario != '0.00' %}
                                             (+ R$ {{ adicional.subtotal|floatformat:2 }})
                                         {% endif %}{% if not forloop.last %}, {% endif %}
                                     {% endfor %}
@@ -54,7 +60,6 @@
                                 <br><small class="text-muted">Obs: {{ item_data.observacao_item }}</small>
                             {% endif %}
                         </div>
-                        {# Preço exibido aqui, usando o subtotal já calculado #}
                         <span class="text-success">R$ {{ item_data.subtotal|floatformat:2 }}</span>
                     </li>
                 {% endfor %}
@@ -67,67 +72,73 @@
             <form action="{% url 'menu:finalizar_pedido' %}" method="post" id="checkout-form">
                 {% csrf_token %}
 
-                <h3 class="mb-3 text-primary mt-4">Suas Informações</h3>
-                <div class="row g-3 mb-4">
-                    <div class="col-12"> {# Alterado de col-md-6 para col-12 #}
+                {# Seus Dados #}
+                <h3 class="mb-3 text-primary mt-4">Seus Dados</h3>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6"> {# Nome Completo #}
                         <label for="nome_cliente" class="form-label">Nome Completo *</label>
                         <input type="text" class="form-control" id="nome_cliente" name="nome_cliente" required>
                     </div>
-                    {# REMOVIDO: Sobrenome #}
-                    <div class="col-12">
+                    <div class="col-md-6"> {# Telefone #}
                         <label for="telefone_cliente" class="form-label">Telefone (WhatsApp) *</label>
                         <input type="tel" class="form-control" id="telefone_cliente" name="telefone_cliente" placeholder="Ex: (99) 99999-9999" required>
                         <small class="form-text text-muted">Usaremos este número para enviar a confirmação do pedido.</small>
                     </div>
-                    <div class="col-12">
-                        <label for="endereco_cliente" class="form-label">Endereço de Entrega *</label>
+                    {# Bairro, Complemento, CPF REMOVIDOS do HTML #}
+                </div>
+
+                {# Endereço de Entrega #}
+                <h3 class="mb-3 text-primary mt-3">Endereço de Entrega</h3>
+                <div class="row g-3 mb-3">
+                    <div class="col-12"> {# Endereço Completo #}
+                        <label for="endereco_cliente" class="form-label">Endereço Completo *</label>
                         <input type="text" class="form-control" id="endereco_cliente" name="endereco_cliente" placeholder="Rua, Número, Bairro, Cidade, Estado" required>
                         <small class="form-text text-muted">Seu endereço completo para entrega.</small>
                     </div>
-                    {# REMOVIDO: CPF #}
                 </div>
 
-                <h3 class="mb-3 text-primary">Forma de Pagamento</h3>
-                <div class="mb-4">
-                    <div class="form-check">
+                {# Forma de Pagamento #}
+                <h3 class="mb-3 text-primary mt-3">Forma de Pagamento</h3>
+                <div class="mb-3 d-flex flex-wrap justify-content-around">
+                    <div class="form-check form-check-inline mx-2">
                         <input class="form-check-input" type="radio" name="forma_pagamento" id="pagamentoPix" value="pix" required>
-                        <label class="form-check-label" for="pagamentoPix">
-                            Pix
-                        </label>
+                        <label class="form-check-label" for="pagamentoPix">Pix</label>
                     </div>
-                    <div class="form-check">
+                    <div class="form-check form-check-inline mx-2">
                         <input class="form-check-input" type="radio" name="forma_pagamento" id="pagamentoCartao" value="cartao">
-                        <label class="form-check-label" for="pagamentoCartao">
-                            Cartão (Débito ou Crédito)
-                        </label>
+                        <label class="form-check-label" for="pagamentoCartao">Cartão</label>
                     </div>
-                    <div class="form-check">
+                    <div class="form-check form-check-inline mx-2">
                         <input class="form-check-input" type="radio" name="forma_pagamento" id="pagamentoDinheiro" value="dinheiro" checked>
-                        <label class="form-check-label" for="pagamentoDinheiro">
-                            Dinheiro
-                        </label>
+                        <label class="form-check-label" for="pagamentoDinheiro">Dinheiro</label>
                     </div>
                 </div>
 
-                <div id="troco-section" class="mb-4">
+                {# Troco #}
+                <div id="troco-section" class="mb-3">
                     <label for="troco_para" class="form-label">Precisa de troco para quanto? (Opcional)</label>
                     <input type="number" step="0.01" min="{{ valor_total_carrinho|floatformat:2 }}" class="form-control" id="troco_para" name="troco_para" placeholder="Ex: 50.00">
                     <small class="form-text text-muted">Se for pagar em dinheiro e precisar de troco.</small>
                 </div>
 
-                <h3 class="mb-3 text-primary">Observações Gerais</h3>
+                {# Observações Gerais #}
+                <h3 class="mb-3 text-primary mt-3">Observações Gerais</h3>
                 <div class="mb-4">
                     <label for="observacoes_gerais" class="form-label">Alguma observação para o pedido completo?</label>
                     <textarea class="form-control" id="observacoes_gerais" name="observacoes_gerais" rows="3" placeholder="Ex: Entregar no portão azul, alergia a amendoim..."></textarea>
                 </div>
 
+                {# Tempo de Entrega Estimado #}
+                <p class="text-muted mb-3 text-center">Tempo estimado de entrega: 30-45 minutos</p>
+
+                {# Button #}
                 <button type="submit" class="btn btn-primary-custom btn-lg w-100">Confirmar Pedido e Enviar para WhatsApp</button>
             </form>
         </div>
     {% endif %}
 </div>
 
-{# Certifique-se de que o Bootstrap JS esteja no final do seu base.html ou neste arquivo #}
+{# Scripts #}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
 <script>
@@ -139,18 +150,18 @@
         function toggleTrocoSection() {
             if (pagamentoDinheiroRadio.checked) {
                 trocoSection.style.display = 'block';
-                trocoParaInput.setAttribute('required', 'required'); 
-                trocoParaInput.setAttribute('min', '{{ valor_total_carrinho|floatformat:2 }}'); 
+                trocoParaInput.setAttribute('required', 'required');
+                trocoParaInput.setAttribute('min', '{{ valor_total_carrinho|floatformat:2 }}');
             } else {
                 trocoSection.style.display = 'none';
                 trocoParaInput.removeAttribute('required');
-                trocoParaInput.value = ''; 
+                trocoParaInput.value = '';
             }
         }
 
         toggleTrocoSection();
 
-        document.querySelectorAll('input[name="forma_pagamento"]').forEach(radio => {
+        document.querySelectorAll('input.form-check-input').forEach(radio => {
             radio.addEventListener('change', toggleTrocoSection);
         });
     });

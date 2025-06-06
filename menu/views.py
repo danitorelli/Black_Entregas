@@ -53,39 +53,49 @@ def _gerar_id_item_carrinho(produto_id, sabores_com_quantidades, adicionais_com_
 def adicionar_ao_carrinho(request, produto_id):
     produto = get_object_or_404(Produto, id=produto_id, disponivel=True)
     carrinho = request.session.get('carrinho', {})
+    print(f"\n\n--- DEBUG INICIAL --- Categoria: {produto.categoria.nome} ---")
+    
+    # Adicione este log imediatamente após obter o produto
+    print(f"Produto: {produto.nome} | Categoria: {produto.categoria.nome}")
+    print("Dados POST recebidos:", request.POST)
+    
 
-    quantidade_input = 0 # Initialize quantity for the main product item
+    print("--- DEBUG: DADOS RECEBIDOS DO POST ---")
+    print(request.POST)
+    print("---------------------------------------")
 
-    # Determine base quantity based on product category
+    quantidade_input = 0 
+
     if produto.categoria.nome == 'Bebidas':
-        # Para Bebidas, pega a quantidade do campo 'quantidade'
         quantidade_input = int(request.POST.get('quantidade', 1))
     elif produto.categoria.nome == 'Açaí':
-        # Para Açaí, a quantidade principal é sempre 1 por padrão (um copo de açaí)
-        # Se precisar de múltiplas unidades de Açaí, o campo 'quantidade' deve ser re-adicionado ao HTML para Açaí.
         quantidade_input = 1 
-    else: # Picolés, Potes (Massa) e outros - sua quantidade será determinada pela soma dos sabores
-        quantidade_input = 0 
+    else: 
+        quantidade_input = 0
 
 
     sabores_com_quantidades_input = []
     sabores_selecionados_para_db = []
-    sabores_info_para_sessao = [] # Detalhes para exibição no carrinho
+    sabores_info_para_sessao = [] 
 
     preco_total_sabores_extras = Decimal('0.00')
 
+    # MODIFICAÇÃO AQUI: Iterar sobre os sabores que o PRODUTO TEM, não apenas os do POST, para pegar suas quantidades
     if hasattr(produto, 'sabores_disponiveis') and produto.sabores_disponiveis.exists():
         sabores_disponiveis_objs = produto.sabores_disponiveis.all()
         for sabor_obj in sabores_disponiveis_objs:
             sabor_id_str = str(sabor_obj.id)
-            if sabor_id_str in request.POST.getlist('sabores'):
+            # Verifica se o sabor foi selecionado (checkbox marcado)
+            if sabor_id_str in request.POST.getlist('sabores'): # AQUI GARANTE QUE O CHECKBOX FOI MARCADO
                 sabor_quantidade_str = request.POST.get(f'sabores_quantities_{sabor_obj.id}', '0')
                 sabor_quantidade = int(sabor_quantidade_str) if sabor_quantidade_str.isdigit() else 0
                 
+                # Se for Açaí, a quantidade do sabor é sempre 1
                 if produto.categoria.nome == 'Açaí':
-                    sabor_quantidade = 1 # For Açaí, quantity of individual flavor is always 1
+                    sabor_quantidade = 1 
                 
-                if sabor_quantidade > 0: # Only add if quantity is positive
+                # Para Picolés/Potes, o usuário DEVE especificar uma quantidade > 0
+                if sabor_quantidade > 0:
                     sabores_com_quantidades_input.append({'id': sabor_obj.id, 'quantidade': sabor_quantidade})
                     sabores_selecionados_para_db.append(sabor_obj.id)
                     
@@ -99,7 +109,8 @@ def adicionar_ao_carrinho(request, produto_id):
                         'preco_unitario_extra': str(sabor_preco_individual),
                         'subtotal_extra': str(subtotal_sabor_extra)
                     })
-
+    
+    # ... (lógica de adicionais, que segue o mesmo padrão, então não precisa de alteração se já estiver correta) ...
     adicionais_com_quantidades_input = []
     adicionais_selecionados_para_db = []
     adicionais_info_para_sessao = [] 
@@ -112,13 +123,13 @@ def adicionar_ao_carrinho(request, produto_id):
             adicional_id = int(adicional_id_str)
             adicional_obj = adicionais_obj_map.get(adicional_id)
             if adicional_obj:
-                adicional_quantidade_str = request.POST.get(f'adicionais_quantities_{adicional_id}', '0') 
+                adicional_quantidade_str = request.POST.get(f'adicionais_quantities_{adicional_obj.id}', '0') 
                 adicional_quantidade = int(adicional_quantidade_str) if adicional_quantidade_str.isdigit() else 0
                 
                 if produto.categoria.nome == 'Açaí':
                     adicional_quantidade = 1 
 
-                if adicional_quantidade > 0: # Only add if quantity is positive
+                if adicional_quantidade > 0:
                     adicionais_com_quantidades_input.append({'id': adicional_obj.id, 'quantidade': adicional_quantidade})
                     adicionais_selecionados_para_db.append(adicional_obj.id)
                     subtotal_adicional = adicional_obj.preco * adicional_quantidade
@@ -131,28 +142,34 @@ def adicionar_ao_carrinho(request, produto_id):
                     })
 
     # --- DETERMINE FINAL QUANTITY FOR THE CART ITEM ---
+
+    
     quantidade_final_para_item_carrinho = 0
-    if produto.categoria.nome == 'Picolés' or produto.categoria.nome == 'Potes (Massa)':
-        quantidade_final_para_item_carrinho = sum(s_info['quantidade'] for s_info in sabores_com_quantidades_input)
-        if quantidade_final_para_item_carrinho == 0:
+
+    if produto.categoria.nome in ['Picolés', 'Potes(Massa)']:
+        quantidade_final_para_item_carrinho = sum(s['quantidade'] for s in sabores_com_quantidades_input)
+        print(f"DEBUG - Picolé/Pote | Sabores: {sabores_com_quantidades_input} | Qtd: {quantidade_final_para_item_carrinho}")
+
+        if quantidade_final_para_item_carrinho <= 0:
+            print("DEBUG - ERRO: Quantidade zero para Picolé/Pote")
+            messages.error(request, f"Por favor, selecione pelo menos um sabor e defina a quantidade para '{produto.nome}'.")
+            return redirect(request.POST.get('next', reverse('menu:detalhe_produto', kwargs={'produto_id': produto.id})))
+
+    elif produto.categoria.nome == 'Açaí':
+        quantidade_final_para_item_carrinho = 1  # Quantidade fixa para Açaí
+        if not sabores_com_quantidades_input:
             messages.error(request, f"Por favor, selecione pelo menos um sabor para '{produto.nome}'.")
             return redirect(request.POST.get('next', reverse('menu:detalhe_produto', kwargs={'produto_id': produto.id})))
-    elif produto.categoria.nome == 'Açaí': # Açaí agora explicitamente aqui
-        quantidade_final_para_item_carrinho = quantidade_input # Será 1, definido no início da view para Açaí
-        
-        # Validar se ao menos um sabor foi selecionado para Açaí (se houver sabores disponíveis para o produto)
-        if produto.sabores_disponiveis.exists() and not sabores_com_quantidades_input:
-             messages.error(request, f"Por favor, selecione pelo menos um sabor para '{produto.nome}'.")
-             return redirect(request.POST.get('next', reverse('menu:detalhe_produto', kwargs={'produto_id': produto.id})))
 
-    elif produto.categoria.nome == 'Bebidas': # Validação para bebidas
-        quantidade_final_para_item_carrinho = quantidade_input
+    elif produto.categoria.nome == 'Bebidas':
+        quantidade_final_para_item_carrinho = int(request.POST.get('quantidade', 0))
         if quantidade_final_para_item_carrinho <= 0:
-            messages.error(request, f"Por favor, defina uma quantidade para '{produto.nome}'.")
+            messages.error(request, f"Por favor, defina uma quantidade válida para '{produto.nome}'.")
             return redirect(request.POST.get('next', reverse('menu:detalhe_produto', kwargs={'produto_id': produto.id})))
-    else: # Fallback para outros produtos gerais
-         quantidade_final_para_item_carrinho = quantidade_input
-         if quantidade_final_para_item_carrinho <= 0:
+
+    else:
+        quantidade_final_para_item_carrinho = int(request.POST.get('quantidade', 0))
+        if quantidade_final_para_item_carrinho <= 0:
             messages.error(request, f"Por favor, defina uma quantidade para '{produto.nome}'.")
             return redirect(request.POST.get('next', reverse('menu:detalhe_produto', kwargs={'produto_id': produto.id})))
 
@@ -167,8 +184,11 @@ def adicionar_ao_carrinho(request, produto_id):
         observacao_item
     )
 
+    subtotal_item_para_sessao = preco_final_unitario_do_produto * Decimal(quantidade_final_para_item_carrinho)
+
     if item_id_carrinho in carrinho:
         carrinho[item_id_carrinho]['quantidade'] += quantidade_final_para_item_carrinho
+        carrinho[item_id_carrinho]['subtotal'] = str(Decimal(carrinho[item_id_carrinho]['preco_final_unitario']) * carrinho[item_id_carrinho]['quantidade'])
     else:
         carrinho[item_id_carrinho] = {
             'produto_id': produto.id,
@@ -186,8 +206,11 @@ def adicionar_ao_carrinho(request, produto_id):
             'subtotal_adicionais': str(preco_total_adicionais),
             'preco_final_unitario': str(preco_final_unitario_do_produto),
             'observacao_item': observacao_item,
-            'imagem_url': produto.imagem.url if produto.imagem else None
+            'imagem_url': produto.imagem.url if produto.imagem else '',
+            'subtotal': str(subtotal_item_para_sessao)
         }
+    print(f"DEBUG: Imagem URL salva na sessão: {carrinho[item_id_carrinho].get('imagem_url')}")
+
 
     request.session['carrinho'] = carrinho
     request.session.modified = True
@@ -202,10 +225,10 @@ def ver_carrinho(request):
     valor_total_carrinho = Decimal('0.00')
 
     # DEBUG print
-    print("--- DEBUG: Carrinho Session (ver_carrinho) ---")
-    for item_id, item_data in carrinho_session.items():
-        print(f"Item ID: {item_id}, Subtotal: {item_data.get('subtotal')}, Preco Final Unitario: {item_data.get('preco_final_unitario')}, Quantidade: {item_data.get('quantidade')}")
-    print("---------------------------------------------")
+    #print("--- DEBUG: Carrinho Session (ver_carrinho) ---")
+    #for item_id, item_data in carrinho_session.items():
+    #    print(f"Item ID: {item_id}, Subtotal: {item_data.get('subtotal')}, Preco Final Unitario: {item_data.get('preco_final_unitario')}, Quantidade: {item_data.get('quantidade')}")
+    #print("---------------------------------------------")
 
     for item_id_carrinho, item_data in carrinho_session.items():
         preco_unitario_base = Decimal(item_data.get('preco_unitario_base', '0.00'))
@@ -292,27 +315,31 @@ def finalizar_pedido(request):
     valor_total_carrinho = Decimal(valor_total_carrinho_str)
 
     if request.method == 'POST':
-        nome_cliente = request.POST.get('nome_cliente', 'Cliente').strip() # Removido sobrenome
-        endereco_cliente = request.POST.get('endereco_cliente', '')
-        telefone_cliente = request.POST.get('telefone_cliente', '')
-        # Removido cpf_cliente = request.POST.get('cpf_cliente', '')
-        observacoes_gerais = request.POST.get('observacoes_gerais', '')
-        forma_pagamento = request.POST.get('forma_pagamento', '')
-        troco_para = request.POST.get('troco_para', '0.00')
+        nome_cliente = request.POST.get('nome_cliente', '').strip()
+        endereco_cliente = request.POST.get('endereco_cliente', '').strip()
+        telefone_cliente = request.POST.get('telefone_cliente', '').strip()
+        observacoes_gerais = request.POST.get('observacoes_gerais', '').strip()
+        forma_pagamento = request.POST.get('forma_pagamento', '').strip()
+        troco_para = request.POST.get('troco_para', '0.00').strip()
         
         try:
             troco_para = Decimal(troco_para.replace(',', '.')) if troco_para else Decimal('0.00')
-        except:
+        except Exception:
             troco_para = Decimal('0.00')
 
+        # Validação básica dos campos obrigatórios
+        if not nome_cliente or not telefone_cliente or not endereco_cliente:
+            messages.error(request, "Por favor, preencha todos os campos obrigatórios (Nome, Telefone, Endereço).")
+            return redirect('menu:finalizar_pedido')
+
         try:
+            # Criar o objeto Pedido no banco de dados com SOMENTE os campos especificados
             novo_pedido = Pedido.objects.create(
-                nome_cliente=nome_cliente, # Agora só o nome_cliente
-                observacoes=observacoes_gerais,
-                valor_total=valor_total_carrinho,
+                nome_cliente=nome_cliente,
                 endereco_cliente=endereco_cliente,
                 telefone_cliente=telefone_cliente,
-                # Removido cpf_cliente=cpf_cliente,
+                observacoes=observacoes_gerais,
+                valor_total=valor_total_carrinho,
                 forma_pagamento=forma_pagamento,
                 troco_para=troco_para
             )
@@ -326,24 +353,18 @@ def finalizar_pedido(request):
         for item_id_carrinho, item_data in carrinho_session.items(): 
             produto_obj = get_object_or_404(Produto, id=item_data['produto_id'])
 
-            # Recalcular subtotal dos adicionais no servidor
-            # Usar a lista 'adicionais_detalhados' que contém a quantidade e preco_unitario
             subtotal_adicionais_servidor = sum(
-                Decimal(ad['preco_unitario']) * ad['quantidade']
+                Decimal(ad.get('preco_unitario', '0.00')) * ad.get('quantidade', 0)
                 for ad in item_data.get('adicionais_detalhados', [])
             )
             
-            # Recalcular preco_total_sabores_extras no servidor (se aplicável, para produtos como Picolé/Pote)
-            # Usar a lista 'sabores_detalhados'
             preco_total_sabores_extras_servidor = sum(
-                Decimal(sabor['preco_unitario_extra']) * sabor['quantidade']
+                Decimal(sabor.get('preco_unitario_extra', '0.00')) * sabor.get('quantidade', 0)
                 for sabor in item_data.get('sabores_detalhados', [])
             )
 
-            # Recalcular preço final unitário no servidor (base + custo de sabores + custo de adicionais)
             preco_final_unitario_servidor = produto_obj.preco_base + preco_total_sabores_extras_servidor + subtotal_adicionais_servidor
             
-            # Subtotal do item (preço final unitário * quantidade do item)
             subtotal_item_servidor = preco_final_unitario_servidor * int(item_data['quantidade'])
             valor_total_calculado_servidor += subtotal_item_servidor
 
@@ -356,7 +377,6 @@ def finalizar_pedido(request):
                 subtotal_item=subtotal_item_servidor,
             )
 
-            # AGORA que item_pedido tem um ID, podemos setar os M2M
             if item_data.get('sabores_ids_para_db'): 
                 item_pedido.sabores_selecionados.set(Sabor.objects.filter(id__in=item_data['sabores_ids_para_db']))
             if item_data.get('adicionais_ids_para_db'): 
@@ -368,7 +388,7 @@ def finalizar_pedido(request):
             sabores_txt_lista = []
             if item_data.get('sabores_detalhados'):
                 for s_det in item_data['sabores_detalhados']:
-                    if produto.categoria.nome == 'Açaí': 
+                    if produto_obj.categoria.nome == 'Açaí': # Usar produto_obj para acessar a categoria
                         sabores_txt_lista.append(s_det['nome'])
                     else: 
                         sabores_txt_lista.append(f"{s_det['nome']} ({s_det['quantidade']}x)")
@@ -400,13 +420,12 @@ def finalizar_pedido(request):
         mensagem_whatsapp = f"Olá, Black Açaí e Sorveteria! 👋\n\n"
         mensagem_whatsapp += f"Gostaria de fazer o seguinte pedido (ID: {novo_pedido.id_pedido_cliente.hex[:8]}):\n"
 
-        if nome_cliente and nome_cliente.lower() != 'cliente':
-            mensagem_whatsapp += f"Nome: {nome_cliente}\n" # Removido sobrenome
+        if nome_cliente:
+            mensagem_whatsapp += f"Nome: {nome_cliente}\n"
         if telefone_cliente:
             mensagem_whatsapp += f"Telefone: {telefone_cliente}\n"
         if endereco_cliente:
-            mensagem_whatsapp += f"Endereço: {endereco_cliente}\n"
-        # Removido cpf_cliente na mensagem
+            mensagem_whatsapp += f"Endereço: {endereco_cliente}\n" # Apenas endereço completo, sem bairro/complemento/cpf
         
         mensagem_whatsapp += "\n*Itens do Pedido:*\n"
         for linha_item in texto_pedido_whatsapp_itens:
