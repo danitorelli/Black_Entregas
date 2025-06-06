@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 from decouple import config # Importe no início do arquivo
+import os
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,8 +29,8 @@ SECRET_KEY = config('SECRET_KEY_DJANGO') # Carrega do .env
 #DEBUG = config('DEBUG_DJANGO', default=False, cast=bool) # Carrega do .env
 DEBUG = False
 
-#ALLOWED_HOSTS = ['*']
-ALLOWED_HOSTS = ['danitorelli.pythonanywhere.com', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['*']
+#ALLOWED_HOSTS = ['danitorelli.pythonanywhere.com', '127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -52,6 +54,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'cardapio_config.urls'
@@ -77,17 +80,19 @@ WSGI_APPLICATION = 'cardapio_config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.postgresql',
+#        'NAME': config('DATABASE_NAME'),
+#        'USER': config('DATABASE_USER'),
+#        'PASSWORD': config('DATABASE_PASSWORD'),
+#        'HOST': config('DATABASE_HOST'),
+#        'PORT': config('DATABASE_PORT'),
+#    }
+#}
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DATABASE_NAME'),
-        'USER': config('DATABASE_USER'),
-        'PASSWORD': config('DATABASE_PASSWORD'),
-        'HOST': config('DATABASE_HOST'),
-        'PORT': config('DATABASE_PORT'),
-    }
+    'default': dj_database_url.config(conn_max_age=600)
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -131,7 +136,11 @@ STATICFILES_DIRS = [
     # BASE_DIR / 'menu/static', # O Django já encontra os estáticos dentro dos apps por padrão
 ]
 # Se for para produção, você também precisará de:
-# STATIC_ROOT = BASE_DIR / 'static_collected'
+STATIC_ROOT = BASE_DIR / 'static_collected'
+#STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -150,3 +159,9 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = False # A sessão não expira ao fechar o nave
 SESSION_COOKIE_AGE = 30 * 60 # 30 minutos em segundos (30 * 60 = 1800 segundos)
 
 # SESSION_SAVE_EVERY_REQUEST = True # Deixe comentado em produção, útil para depuração
+
+
+
+
+
+
