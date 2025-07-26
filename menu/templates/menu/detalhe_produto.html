@@ -278,41 +278,45 @@
                     </div>
                 {% endif %}
 
-                {# Adicionais Disponíveis (checkboxes com campo de quantidade) #}
-                {% if adicionais_disponiveis %}
-                    <div class="form-section">
-                        <h3 class="form-section-title">Adicionais e Complementos</h3>
-                        <p class="text-muted small">Selecione os adicionais e suas respectivas quantidades.</p>
-                        <div class="choice-group">
-                            {% for adicional in adicionais_disponiveis %}
+                {% comment %} ENCONTRE E SELECIONE TODO ESTE BLOCO PARA SUBSTITUIR {% endcomment %}
+
+                {% comment %} COLE ESTE NOVO BLOCO NO LUGAR DO ANTIGO {% endcomment %}
+
+                {# { ATUALIZADO } - SEÇÃO DE ADICIONAIS AGRUPADOS #}
+                {% if adicionais_agrupados %}
+                <div class="mb-3">
+                    <h3 class="form-section-title">Adicionais e Complementos</h3>
+                    
+                    {% for tipo, adicionais_do_tipo in adicionais_agrupados.items %}
+                        <div class="form-section mt-2">
+                            <h4 class="form-section-subtitle">{{ tipo }}</h4> {# Título do grupo, ex: "Cobertura / Calda" #}
+                            <div class="choice-group">
+                            {% for adicional in adicionais_do_tipo %}
                                 <div class="choice-item">
-                                    <input class="form-check-input"
-                                            type="checkbox"
-                                            id="adicional_check_{{ adicional.id }}"
-                                            name="adicionais"
-                                            value="{{ adicional.id }}"
-                                            onchange="handleQuantityInputs('adicional', {{ adicional.id }})"> 
+                                    <input class="form-check-input" type="checkbox" name="adicionais" value="{{ adicional.id }}" id="adicional_check_{{ adicional.id }}" onchange="handleQuantityInputs('adicional', {{ adicional.id }})">
                                     <label class="form-check-label" for="adicional_check_{{ adicional.id }}">
-                                        {{ adicional.nome }} (+ R$ {{ adicional.preco|floatformat:2 }})
+                                        {{ adicional.nome }} (+ R$ {{ adicional.preco|stringformat:".2f" }})
                                     </label>
-                                    {# ATENÇÃO: Para Açaí, a quantidade do adicional DEVE ser hidden. Para outros, DEVE aparecer. #}
-                                    {% if categoria_nome == 'Açaí' %}
-                                        <input type="hidden"
-                                                id="adicional_qty_{{ adicional.id }}"
-                                                name="adicionais_quantities_{{ adicional.id }}"
-                                                min="1"
-                                                value="1"> 
-                                    {% else %}
-                                        <input type="number"
-                                                id="adicional_qty_{{ adicional.id }}"
-                                                name="adicionais_quantities_{{ adicional.id }}"
-                                                class="form-control form-control-sm"> {# Removido min, value e classe #}
+                                    {% if categoria_nome != 'Açaí' %}
+                                        <input type="number" name="adicionais_quantities_{{ adicional.id }}" id="adicional_qty_{{ adicional.id }}" value="1" min="1" class="form-control form-control-sm" style="display: none;">
                                     {% endif %}
                                 </div>
                             {% endfor %}
+                            </div>
                         </div>
-                    </div>
+                    {% endfor %}
+                </div>
                 {% endif %}
+                
+                {# Adicionando um pouco de estilo para o novo subtítulo do grupo #}
+                <style>
+                    .form-section-subtitle {
+                        font-size: 1.1rem;
+                        color: #6a1b9a;
+                        font-weight: bold;
+                        margin-bottom: 1rem;
+                    }
+                </style>
 
                 {# Campo de Observações do Item #}
                 <div class="form-section">

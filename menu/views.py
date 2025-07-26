@@ -31,15 +31,24 @@ def listar_produtos(request):
 
 def detalhe_produto(request, produto_id):
     produto = get_object_or_404(Produto, pk=produto_id) 
-    sabores_disponiveis = produto.sabores_disponiveis.all()
-    adicionais_disponiveis = produto.adicionais_disponiveis.all()
-    categoria_nome = produto.categoria.nome if produto.categoria else None
+    categoria_nome = produto.categoria.nome if produto.categoria else ""
 
+    # { LÓGICA ATUALIZADA PARA ADICIONAIS }
+    # Agrupa os adicionais por tipo para exibir em seções separadas
+    adicionais_agrupados = {}
+    if hasattr(produto, 'adicionais_disponiveis'):
+        adicionais_disponiveis = produto.adicionais_disponiveis.all().order_by('tipo', 'nome')
+        for adicional in adicionais_disponiveis:
+            tipo_display = adicional.get_tipo_display() # Pega o nome amigável (ex: "Cobertura / Calda")
+            if tipo_display not in adicionais_agrupados:
+                adicionais_agrupados[tipo_display] = []
+            adicionais_agrupados[tipo_display].append(adicional)
+    
     context = {
         'produto': produto,
-        'sabores_disponiveis': sabores_disponiveis,
-        'adicionais_disponiveis': adicionais_disponiveis,
         'categoria_nome': categoria_nome,
+        'sabores_disponiveis': produto.sabores_disponiveis.all() if hasattr(produto, 'sabores_disponiveis') else None,
+        'adicionais_agrupados': adicionais_agrupados, # Enviando a lista agrupada para o template
     }
     return render(request, 'menu/detalhe_produto.html', context)
 
@@ -138,7 +147,8 @@ def adicionar_ao_carrinho(request, produto_id):
                         'nome': adicional_obj.nome,
                         'quantidade': adicional_quantidade,
                         'preco_unitario': str(adicional_obj.preco),
-                        'subtotal': str(subtotal_adicional)
+                        'subtotal': str(subtotal_adicional),
+                        'tipo': adicional_obj.get_tipo_display()
                     })
 
     # --- DETERMINE FINAL QUANTITY FOR THE CART ITEM ---

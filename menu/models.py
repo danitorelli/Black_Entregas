@@ -1,8 +1,8 @@
 # menu/models.py
 from django.db import models
 from django.core.validators import MinValueValidator
+from decimal import Decimal # Importar Decimal
 import uuid 
-
 
 class Categoria(models.Model): 
     nome = models.CharField(max_length=100, unique=True, verbose_name="Nome da Categoria") 
@@ -18,29 +18,55 @@ class Categoria(models.Model):
 
     class Meta: 
         verbose_name = "Categoria" 
-        verbose_name_plural = "Categorias" # Corrected
+        verbose_name_plural = "Categorias"
         ordering = ['ordem', 'nome'] 
 
 class Sabor(models.Model): 
     nome = models.CharField(max_length=100, unique=True, verbose_name="Nome do Sabor") 
+    # { NOVO } - Campo de preço opcional para sabores premium
+    preco = models.DecimalField(
+        max_digits=6, decimal_places=2, default=Decimal('0.00'),
+        validators=[MinValueValidator(Decimal('0.00'))],
+        verbose_name="Preço Extra",
+        help_text="Preço extra para este sabor (deixe 0 se não tiver custo adicional)."
+    )
 
     def __str__(self): 
+        if self.preco > 0:
+            return f"{self.nome} (+ R$ {self.preco})"
         return self.nome 
 
     class Meta: 
         verbose_name = "Sabor" 
-        verbose_name_plural = "Sabores" # Corrected
+        verbose_name_plural = "Sabores"
+        ordering = ['nome']
 
-class Adicional(models.Model): 
+class Adicional(models.Model):
+    # { ATUALIZADO } - Adicionando tipos de adicionais
+    TIPO_ADICIONAL_CHOICES = [
+        ('SECO', 'Adicionais'),
+        ('COBERTURA', 'Cobertura'),
+        ('FRUTA', 'Fruta'),
+        ('OUTRO', 'Outro'),
+    ]
+
     nome = models.CharField(max_length=100, unique=True, verbose_name="Nome do Adicional") 
     preco = models.DecimalField(max_digits=6, decimal_places=2, validators=[MinValueValidator(0.0)], verbose_name="Preço") 
+    
+    tipo = models.CharField( # { NOVO }
+        max_length=10,
+        choices=TIPO_ADICIONAL_CHOICES,
+        default='SECO',
+        verbose_name="Tipo de Adicional"
+    )
 
     def __str__(self): 
         return f"{self.nome} (R$ {self.preco})" 
 
     class Meta: 
         verbose_name = "Adicional" 
-        verbose_name_plural = "Adicionais" # Corrected
+        verbose_name_plural = "Adicionais"
+        ordering = ['tipo', 'nome']
 
 class Produto(models.Model): 
     nome = models.CharField(max_length=200, verbose_name="Nome do Produto") 
@@ -58,9 +84,9 @@ class Produto(models.Model):
 
     class Meta: 
         verbose_name = "Produto" 
-        verbose_name_plural = "Produtos" # Corrected
+        verbose_name_plural = "Produtos"
 
-
+# ... (Os modelos Pedido e ItemPedido podem continuar exatamente como estão) ...
 class Pedido(models.Model): 
     id_pedido_cliente = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, verbose_name="ID do Pedido (Cliente)") 
     nome_cliente = models.CharField(max_length=150, verbose_name="Nome Completo do Cliente") # Campo único para nome completo
@@ -90,7 +116,7 @@ class Pedido(models.Model):
 
     class Meta: 
         verbose_name = "Pedido" 
-        verbose_name_plural = "Pedidos" # Corrected
+        verbose_name_plural = "Pedidos"
         ordering = ['-data_pedido'] 
 
 class ItemPedido(models.Model): 
@@ -123,7 +149,6 @@ class ItemPedido(models.Model):
             self.preco_unitario = self.produto.preco_base 
         super().save(*args, **kwargs) 
 
-
     class Meta: 
         verbose_name = "Item do Pedido" 
-        verbose_name_plural = "Itens do Pedido" # Corrected
+        verbose_name_plural = "Itens do Pedido"

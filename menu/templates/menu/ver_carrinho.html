@@ -114,19 +114,22 @@
                 </table>
             </div>
 
-            <div class="d-flex justify-content-end align-items-center mt-4">
-                <h3 class="me-3 mb-0">Total do Pedido: <span class="text-primary">R$ {{ valor_total_carrinho|floatformat:2 }}</span></h3>
+            {# NOVO: REESTRUTURAÇÃO DOS BOTÕES INFERIORES PARA MELHOR RESPONSIVIDADE #}
+            <div class="d-flex flex-column flex-md-row justify-content-md-end align-items-md-center mt-4">
+                <h3 class="mb-3 mb-md-0 me-md-3 text-center text-md-end">Total do Pedido: <span class="text-primary">R$ {{ valor_total_carrinho|floatformat:2 }}</span></h3>
                 
-                <form action="{% url 'menu:esvaziar_carrinho' %}" method="post" class="me-2"> {# Novo form para o botão esvaziar #}
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-outline-secondary btn-lg">Esvaziar Carrinho</button>
-                </form>
+                <div class="d-grid gap-2 d-md-block"> {# Bootstrap 5 d-grid para empilhar em mobile, d-md-block para inline em md+ #}
+                    <form action="{% url 'menu:esvaziar_carrinho' %}" method="post" class="d-inline-block me-md-2 mb-2 mb-md-0">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-secondary btn-lg w-100">Esvaziar Carrinho</button>
+                    </form>
 
-                <a href="{% url 'menu:finalizar_pedido' %}" class="btn btn-primary-custom btn-lg">Finalizar Pedido</a>
+                    <a href="{% url 'menu:finalizar_pedido' %}" class="btn btn-primary-custom btn-lg w-100">Finalizar Pedido</a>
+                </div>
             </div>
             
-            <div class="d-flex justify-content-center mt-3"> {# Novo div para o botão de continuar comprando #}
-                <a href="{% url 'menu:listar_produtos' %}" class="btn btn-outline-primary btn-lg w-75">Continuar Comprando</a> {# Usando btn-outline-primary para consistência com o botão "Voltar" #}
+            <div class="d-flex justify-content-center mt-3">
+                <a href="{% url 'menu:listar_produtos' %}" class="btn btn-outline-primary btn-lg w-75">Continuar Comprando</a>
             </div>
         </div>
     {% else %}
